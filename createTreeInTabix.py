@@ -47,8 +47,7 @@ def createTextFile(outputFile):
     with open(outputFile, "w") as w:
         for clade in snps:
             for snp in snps[clade]:
-                w.write("\t".join(["clade", clade, clade, snp, "."]) + "\n")
-                w.write("\t".join(["SNP", snp, snp, clade, "."]) + "\n")
+                w.write("\t".join([clade, "1", "1", snp, "."]) + "\n")                
     w.close()
     
 parseTreeJSON(treeFile)
