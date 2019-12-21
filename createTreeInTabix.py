@@ -50,3 +50,6 @@ def createTextFile(outputFile):
                 w.write("\t".join(["clade", clade, clade, snp, "."]) + "\n")
                 w.write("\t".join(["SNP", snp, snp, clade, "."]) + "\n")
     w.close()
+    
+parseTreeJSON(treeFile)
+createTextFile(tabixFilePath)
