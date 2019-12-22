@@ -8,7 +8,7 @@ Created on Fri Dec 20 13:22:52 2019
 import sys
 import json
 
-if len(sys.argv) > 1:
+if len(sys.argv) > 3:
     treeFile = sys.argv[1]
     cladeSNPFilePath = sys.argv[2]
     SNPcladeFilePath = sys.argv[3]

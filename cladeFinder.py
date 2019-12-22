@@ -8,7 +8,7 @@ Created on Fri Dec 20 13:19:15 2019
 import tabix
 import sys
 
-if len(sys.argv) > 1:
+if len(sys.argv) > 2:
     cladeSNPFilePath = sys.argv[1]
     SNPcladeFilePath = sys.argv[2]
  
@@ -35,6 +35,4 @@ def getSNPClades(snp):
         clades.append(clade[3])
     return clades
 
-
 print(", ".join(getSNPClades("Z622")))
-def relevantClades
