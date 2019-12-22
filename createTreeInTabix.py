@@ -53,7 +53,7 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
     with open(SNPcladeFilePath,  "w") as w:
         for clade in snps:
             for snp in snps[clade]:
-                w.write("\t".join([snp, "1", "1", clade, "."]) + "\n")                
+                w.write("\t".join([snp.replace(".","_"), "1", "1", clade, "."]) + "\n")                
     w.close()    
             
 parseTreeJSON(treeFile)
