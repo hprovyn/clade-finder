@@ -9,7 +9,7 @@ import tabix
 import sys
 
 if len(sys.argv) > 1:
-    tabixFilePath = sys.argv[2]
+    tabixFilePath = sys.argv[1]
 
  
 #TODO get unique column values tabix query?
