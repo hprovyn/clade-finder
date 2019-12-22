@@ -12,5 +12,5 @@ yfullsnps="$workingDir${pathSeparator}yfullsnps"
 rm $workingDir${pathSeparator}*
 
 python3 "$createTabixTSV_py" "$treeFile" "$yfullsnps"
-sort "$yfullsnps" "-k1V" "-k2n" "-k3n" | "bgzip" > "$yfullsnps.bgz"
+sort "$yfullsnps" "-k1,1" "-k2n" | "bgzip" > "$yfullsnps.bgz"
 tabix "-s" "1" "-b" "2" "-e" "3" "$yfullsnps.bgz"
