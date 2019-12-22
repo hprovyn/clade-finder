@@ -19,4 +19,4 @@ tabix "-s" "1" "-b" "2" "-e" "3" "$cladeSNPs.bgz"
 sort "$SNPclades" "-k1,1" "-k2n" | "bgzip" > "$SNPclades.bgz"
 tabix "-s" "1" "-b" "2" "-e" "3" "$SNPclades.bgz"
 
-python3 "$cladeFinder_py" "$cladeSNPs" "$SNPclades"
+python3 "$cladeFinder_py" "$cladeSNPs.bgz" "$SNPclades.bgz"
