@@ -10,7 +10,8 @@ import json
 
 if len(sys.argv) > 1:
     treeFile = sys.argv[1]
-    tabixFilePath = sys.argv[2]
+    cladeSNPFilePath = sys.argv[2]
+    SNPcladeFilePath = sys.argv[3]
     
 hierarchy = {}
 childMap = {}
@@ -43,12 +44,17 @@ def recurseTreeJson(node):
                 snps[child["id"]] = parseSNPsString(child["snps"])
                 recurseTreeJson(child)
 
-def createTextFile(outputFile):
-    with open(outputFile, "w") as w:
+def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
+    with open(cladeSNPFilePath, "w") as w:
         for clade in snps:
             for snp in snps[clade]:
                 w.write("\t".join([clade, "1", "1", snp, "."]) + "\n")                
     w.close()
-    
+    with open(SNPcladeFilePath,  "w") as w:
+        for clade in snps:
+            for snp in snps[clade]:
+                w.write("\t".join([snp, "1", "1", clade, "."]) + "\n")                
+    w.close()    
+            
 parseTreeJSON(treeFile)
-createTextFile(tabixFilePath)
+createTextFile(cladeSNPFilePath, SNPcladeFilePath)

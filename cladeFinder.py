@@ -9,19 +9,32 @@ import tabix
 import sys
 
 if len(sys.argv) > 1:
-    tabixFilePath = sys.argv[1]
-
+    cladeSNPFilePath = sys.argv[1]
+    SNPcladeFilePath = sys.argv[2]
  
 #TODO get unique column values tabix query?
 
-tb = tabix.open(tabixFilePath)
+tbcladeSNP = tabix.open(cladeSNPFilePath)
+tbSNPclade = tabix.open(SNPcladeFilePath)
 
 def getCladeSNPs(clade):
     
-    claderesults = tb.querys(clade + ":1-1")
+    claderesults = tbcladeSNP.querys(clade + ":1-1")
     snps = []
     for snp in claderesults:
         snps.append(snp[3])
     return snps
 
 print(", ".join(getCladeSNPs("J-Z1043")))
+
+def getSNPClades(snp):
+    
+    SNPresults = tbSNPclade.querys(snp + ":1-1")
+    clades = []
+    for clade in SNPresults:
+        clades.append(clade[3])
+    return clades
+
+
+print(", ".join(getSNPClades("Z622")))
+def relevantClades
