@@ -15,7 +15,7 @@ if len(sys.argv) > 2:
 #TODO get unique column values tabix query?
 
 tbcladeSNP = tabix.open(cladeSNPFilePath)
-tbSNPclade = tabix.open(SNPcladeFilePath)
+
 
 def getCladeSNPs(clade):
     
@@ -26,6 +26,8 @@ def getCladeSNPs(clade):
     return snps
 
 print(", ".join(getCladeSNPs("J-Z1043")))
+
+tbSNPclade = tabix.open(SNPcladeFilePath)
 
 def getSNPClades(snp):
     
