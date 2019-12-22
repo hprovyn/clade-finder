@@ -5,4 +5,23 @@ Created on Fri Dec 20 13:19:15 2019
 @author: hunte
 """
 
-print("clade finder")
+import tabix
+import sys
+
+if len(sys.argv) > 1:
+    tabixFilePath = sys.argv[2]
+
+ 
+#TODO get unique column values tabix query?
+
+tb = tabix.open(tabixFilePath)
+
+def getCladeSNPs(clade):
+    
+    claderesults = tb.querys(clade + ":1-1")
+    snps = []
+    for snp in claderesults:
+        snps.append(snp[3])
+    return snps
+
+print(", ".join(getCladeSNPs("J-Z1043")))
