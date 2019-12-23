@@ -18,12 +18,15 @@ tbcladeSNP = tabix.open(cladeSNPFilePath)
 
 
 def getCladeSNPs(clade):
-    
-    claderesults = tbcladeSNP.querys(clade + ":1-1")
-    snps = []
-    for snp in claderesults:
-        snps.append(snp[3])
-    return snps
+    try:
+        claderesults = tbcladeSNP.querys(clade + ":1-1")
+        snps = []
+        for snp in claderesults:
+            snps.append(snp[3])
+        return snps
+    except:
+        print(clade, " has no SNPs")
+        return []
 
 print("J-Z1043", cladeSNPFilePath, SNPcladeFilePath)
 print(", ".join(getCladeSNPs("J-Z1043")))
