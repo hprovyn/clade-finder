@@ -265,7 +265,7 @@ def refineHitsRecursively(sequences, positives, childParents, childMap, cladeSNP
                 seqCopy.append(refRes)
                 
 def recurseDownTree(positives, childParents, childMap, cladeSNPs, solutions):
-    sequences = recurseDownTreeUntilFirstHits("", positives, childParents, childMap, cladeSNPs)
+    sequences = recurseDownTreeUntilFirstHits("Adam", positives, childParents, childMap, cladeSNPs)
     newSequences = []
     for sequence in sequences:
         newSequences.append([sequence])
