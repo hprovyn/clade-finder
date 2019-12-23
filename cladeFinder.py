@@ -50,6 +50,8 @@ def getParent(clade):
         parent = None
         for parentResult in parentResults:
             parent = parentResult[3]
+        if parent == '':
+            return "Adam"
         return parent
     except:
         return None
