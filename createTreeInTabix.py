@@ -33,13 +33,15 @@ def parseTreeJSON(fil):
 #replace minus with MINUS
 
 def replaceAsNecessary(snp):
-    return snp.replace("(","").replace(")","").replace("+","PLUS").replace("-","MINUS")
+    return snp.replace("(","").replace(")","").replace("+","PLUS").replace("-","MINUS").replace(" ","")
 
 def parseSNPsString(snpsString):
     thesnps = set([])
     for snps in snpsString.split(", "):
         for snp in snps.split("/"):
-            thesnps.add(replaceAsNecessary(snp))
+            replaced = replaceAsNecessary(snp)
+            if replaced != "":
+                thesnps.add(replaced)
     return thesnps
             
 def recurseTreeJson(node):
