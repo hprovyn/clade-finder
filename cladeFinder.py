@@ -138,9 +138,9 @@ def getPathScores(fullSequence, confirmed, negatives, positives, conflicts, clad
                 scores.append(0.5)
     return scores
 
-def isBasal(clade, negatives, positives, hierarchy, cladeSNPs):
+def isBasal(clade, negatives, positives, hierarchy, childMap, cladeSNPs):
     basal = False
-    children = getChildren(clade, hierarchy)
+    children = getChildren(clade, childMap)
     if len(children) > 0:
         basal = True
         for child in children:
@@ -174,7 +174,7 @@ def getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs):
             conflicts = getConflicts(totalSequence, negatives, cladeSNPs)
             scores = getPathScores(totalSequence, solution, negatives, positives, conflicts, cladeSNPs)
             clade = solution[-1 - removed]
-            if isBasal(clade, negatives, positives, hierarchy, cladeSNPs):
+            if isBasal(clade, negatives, positives, hierarchy, childMap, cladeSNPs):
                 clade = clade + "*"
             scoredSolutions.append([totalSequence, clade, np.average(scores), np.sum(scores), np.average(scores) * np.sum(scores), getWarningsConf(conflicts)])
             removed = removed + 1
@@ -245,7 +245,7 @@ def isInChildrenThisLevel(clade, positives, childMap, cladeSNPs):
 
 def recurseDownTreeUntilFirstHits(clade, positives, childParents, childMap, cladeSNPs):
     posChildrenThisLevel = isInChildrenThisLevel(clade, positives, childMap, cladeSNPs)
-    for child in getChildren(clade, childParents):
+    for child in getChildren(clade, childMap):
         if child not in posChildrenThisLevel:
             childResult = recurseDownTreeUntilFirstHits(child, positives, childParents, childMap, cladeSNPs)
             for cres in childResult:
