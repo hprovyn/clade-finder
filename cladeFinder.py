@@ -38,4 +38,4 @@ def getSNPClades(snp):
         clades.append(clade[3])
     return clades
 
-print(", ".join(getSNPClades("Z622")))
+print(", ".join(getSNPClades("M12")))
