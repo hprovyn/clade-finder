@@ -271,8 +271,11 @@ def recurseDownTree(positives, childParents, childMap, cladeSNPs, solutions):
     
 def findClade(positives, negatives):
     hierarchy = createMinimalTree(positives)
+    print(hierarchy)
     childMap = createChildMap(hierarchy)
+    print(childMap)
     cladeSNPs = createCladeSNPs(hierarchy)
+    print(cladeSNPs)
     b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
     if len(b) > 0:
         print(' computed as ', b[0][1])
