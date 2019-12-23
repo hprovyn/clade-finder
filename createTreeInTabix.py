@@ -12,6 +12,10 @@ if len(sys.argv) > 3:
     treeFile = sys.argv[1]
     cladeSNPFilePath = sys.argv[2]
     SNPcladeFilePath = sys.argv[3]
+else:
+    treeFile = "C:\clade-finder-files\yfull.json"
+    cladeSNPFilePath = "C:\clade-finder-files\cladeSNPs"
+    SNPcladeFilePath = "C:\clade-finder-files\SNPclades"
     
 hierarchy = {}
 childMap = {}
@@ -24,11 +28,18 @@ def parseTreeJSON(fil):
     recurseTreeJson(root)
     return (root["id"])
 
+#remove parens
+#replace plus with PLUS
+#replace minus with MINUS
+
+def replaceAsNecessary(snp):
+    return snp.replace("(","").replace(")","").replace("+","PLUS").replace("-","MINUS")
+
 def parseSNPsString(snpsString):
     thesnps = set([])
     for snps in snpsString.split(", "):
         for snp in snps.split("/"):
-            thesnps.add(snp)
+            thesnps.add(replaceAsNecessary(snp))
     return thesnps
             
 def recurseTreeJson(node):
