@@ -25,8 +25,8 @@ def getCladeSNPs(clade):
         snps.append(snp[3])
     return snps
 
-print("J-Z1043", cladeSNPFilePath, SNPcladeFilePath)
-print(", ".join(getCladeSNPs("J-Z1043")))
+#print("J-Z1043", cladeSNPFilePath, SNPcladeFilePath)
+#print(", ".join(getCladeSNPs("J-Z1043")))
 
 tbSNPclade = tabix.open(SNPcladeFilePath)
 
