@@ -61,7 +61,12 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
     with open(cladeSNPFilePath, "w") as w:
         for clade in snps:
             for snp in snps[clade]:
-                w.write("\t".join([clade, "1", "1", snp, "."]) + "\n")                
+                w.write("\t".join([clade, "1", "1", snp, "."]) + "\n")
+            if clade in hierarchy:
+                w.write("\t".join([clade, "2", "2", hierarchy[clade], "."]) + "\n")
+            if clade in childMap:
+                for child in childMap[clade]:
+                    w.write("\t".join([clade, "3", "3", child, "."]) + "\n")
     w.close()
     with open(SNPcladeFilePath,  "w") as w:
         for clade in snps:

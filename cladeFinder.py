@@ -40,3 +40,30 @@ def getSNPClades(snp):
 
 print(", ".join(getSNPClades("M12")))
 print(", ".join(getSNPClades("USP9YPLUS3636")))
+
+def getParent(clade):
+    parentResults = tbcladeSNP.querys(clade + ":2-2")
+    parent = None
+    for parentResult in parentResults:
+        parent = parentResult[3]
+    return parent
+
+def recurseToRootAddParents(clade, hier):
+    parent = getParent(clade)
+    if parent != None:
+        hier[clade] = parent
+        if parent not in hier:
+            recurseToRootAddParents(parent, hier)
+
+def createMinimalTree(positives):
+    clades = set([])
+    for snp in positives:
+        for clade in getSNPClades(snp):
+            clades.add(clade)
+    hier = {}
+    for clade in clades:
+        recurseToRootAddParents(clade, hier)
+    return hier
+
+hier = createMinimalTree(["PH1080","USP9YPLUS3636","Z1043"])
+print(", ".join(list(hier.keys())))
