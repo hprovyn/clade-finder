@@ -285,11 +285,11 @@ def findClade(positives, negatives):
     else:
         print(' unable to compute')
         
-    solutions = []
-    recurseDownTree(positives, hierarchy, childMap, cladeSNPs, solutions)
-    print(solutions)
-    print(recurseDownTreeUntilFirstHits("Adam", positives, hierarchy, childMap, cladeSNPs))
-    print(recurseDownTreeUntilFirstHits("J-M102", positives, hierarchy, childMap, cladeSNPs))
-    print("Adam's children", childMap["Adam"])
+    #solutions = []
+    #recurseDownTree(positives, hierarchy, childMap, cladeSNPs, solutions)
+    #print(solutions)
+    #print(recurseDownTreeUntilFirstHits("Adam", positives, hierarchy, childMap, cladeSNPs))
+    #print(recurseDownTreeUntilFirstHits("J-M102", positives, hierarchy, childMap, cladeSNPs))
+    #print("Adam's children", childMap["Adam"])
         
-findClade(["PH1080","Z1043","Z1297","M12","M241","L283","Z1825"],["CTS11760","Z8429"])
+findClade(set(["PH1080","Z1043","Z1297","M12","M241","L283","Z1825"]),set(["CTS11760","Z8429"]))
