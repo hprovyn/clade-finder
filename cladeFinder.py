@@ -42,11 +42,14 @@ print(", ".join(getSNPClades("M12")))
 print(", ".join(getSNPClades("USP9YPLUS3636")))
 
 def getParent(clade):
-    parentResults = tbcladeSNP.querys(clade + ":2-2")
-    parent = None
-    for parentResult in parentResults:
-        parent = parentResult[3]
-    return parent
+    try:
+        parentResults = tbcladeSNP.querys(clade + ":2-2")
+        parent = None
+        for parentResult in parentResults:
+            parent = parentResult[3]
+        return parent
+    except:
+        return None
 
 def recurseToRootAddParents(clade, hier):
     parent = getParent(clade)
