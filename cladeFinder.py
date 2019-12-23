@@ -275,3 +275,5 @@ def findClade(positives, negatives):
         print(' computed as ', b[0][1])
     else:
         print(' unable to compute')
+        
+findClade(["PH1080","Z1043","Z1297","M12","M241","L283","Z1825"],["CTS11760","Z8429"])
