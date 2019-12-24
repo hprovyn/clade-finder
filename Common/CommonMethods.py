@@ -260,9 +260,6 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
     print(cladeSNPs)
     b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
-    if len(b) > 0:
-        print(' computed as ', b[0][1])
-    else:
-        print(' unable to compute')
+    print(b)
         
 
