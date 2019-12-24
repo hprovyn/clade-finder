@@ -12,7 +12,7 @@ if len(sys.argv) > 4:
     tbCladeSNPFile = sys.argv[1]
     tbSNPcladeFile = sys.argv[2]
     positives = sys.argv[3].split(",")
-    negatives = sys.argv[4].spilt(",")
+    negatives = sys.argv[4].split(",")
  
 #tbcladeSNP = tabix.open(cladeSNPFilePath)
 #
