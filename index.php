@@ -49,7 +49,7 @@ Enter positive SNPs separated by commas and hit ENTER.<br><br>
 </form>
 
 <br><br>
-<b>Experiment Information</b><br>
+
 
 
 
@@ -62,6 +62,7 @@ Enter positive SNPs separated by commas and hit ENTER.<br><br>
         
         
         $message = exec('/var/lib/clade-finder/findClade.sh ' . $parsed . ' CTS11760,Z8429');
+        echo $message . '<br>';
         $predsplit = str_replace("&", "&amp;", $message);
         $predsplit = str_replace("\"", "&quot;", $predsplit);
         echo '<b>Prediction</b><div style="outline: 1px solid black" width="880" height="250"><div id="pred" style="padding:10px;overflow-y: scroll;max-height:230px" id="pred" width="860" height="230"></div></div><br><br>';       
