@@ -260,6 +260,12 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
     print(cladeSNPs)
     b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
-    print(b)
+    html = "unable to determine clade"
+    if len(b) > 0:
+        html = "<table><tr><td>Clade</td><td>Score</td></tr>"
+        for res in b:
+            html = html + "<tr><td>" + res[1] + "</td><td>" + str(res[2]) + "</td></tr>"
+        html = html + "</table>"
+    print(html)
         
 
