@@ -264,7 +264,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     if len(b) > 0:
         html = "<table><tr><td>Clade</td><td>Score</td></tr>"
         for res in b:
-            html = html + "<tr><td>" + res[1] + "</td><td>" + str(res[2]) + "</td></tr>"
+            html = html + '<tr><td><a href="https://www.yfull.com/tree/"' + res[1] + '">' + res[1] + "</a></td><td>" + str(res[2]) + "</td></tr>"
         html = html + "</table>"
     print(html)
         
