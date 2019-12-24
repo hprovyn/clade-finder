@@ -61,7 +61,7 @@ Enter positive SNPs separated by commas and hit ENTER.<br><br>
         $parsed=$input;
         
         
-        $message = exec('/var/lib/clade-finder/findClade.sh ' . $parsed . ' CTS11760,Z8429');
+        $message = exec('/var/lib/clade-finder/findClade.sh Z1043,M102,M241,Z1295,Z1297,M12,L283 CTS11760,Z8429');
         echo $message . '<br>';
         $predsplit = str_replace("&", "&amp;", $message);
         $predsplit = str_replace("\"", "&quot;", $predsplit);
