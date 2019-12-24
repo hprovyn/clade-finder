@@ -5,7 +5,7 @@ Created on Tue Dec 24 13:51:27 2019
 @author: hunte
 """
 
-import CommonMethods
+from Common import CommonMethods
 import sys
 
 if len(sys.argv) > 4:
