@@ -16,11 +16,12 @@ if len(sys.argv) > 3:
     negatives = set([])
     for snp in snps:
         stripped = snp.strip()
-        if stripped[-1] == "+":
-            positives.add(stripped[0:-1])
-        else:
-            if stripped[-1] == "-":
-                negatives.add(stripped[0:-1])
+        if stripped != "":
+            if stripped[-1] == "+":
+                positives.add(stripped[0:-1])
+            else:
+                if stripped[-1] == "-":
+                    negatives.add(stripped[0:-1])
  
 #tbcladeSNP = tabix.open(cladeSNPFilePath)
 #
