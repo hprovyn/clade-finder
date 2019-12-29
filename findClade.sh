@@ -11,4 +11,4 @@ findClade_py="$pythonScriptsDir${pathSeparator}findClade.py"
 cladeSNPs="$workingDir${pathSeparator}cladeSNPs"
 SNPclades="$workingDir${pathSeparator}SNPclades"
 
-python3 "$findClade_py" "$cladeSNPs.bgz" "$SNPclades.bgz" $1 $2
+python3 "$findClade_py" "$cladeSNPs.bgz" "$SNPclades.bgz" $1

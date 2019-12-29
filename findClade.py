@@ -8,11 +8,19 @@ Created on Tue Dec 24 13:51:27 2019
 from Common import CommonMethods
 import sys
 
-if len(sys.argv) > 4:
+if len(sys.argv) > 3:
     tbCladeSNPFile = sys.argv[1]
     tbSNPcladeFile = sys.argv[2]
-    positives = set(sys.argv[3].split(","))
-    negatives = set(sys.argv[4].split(","))
+    snps = sys.argv[3].split(",")
+    positives = set([])
+    negatives = set([])
+    for snp in snps:
+        stripped = snp.strip()
+        if stripped[-1] == "+":
+            positives.add(stripped)
+        else:
+            if stripped[-1] == "-":
+                negatives.add(stripped)
  
 #tbcladeSNP = tabix.open(cladeSNPFilePath)
 #

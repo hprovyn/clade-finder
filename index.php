@@ -36,15 +36,17 @@ Please always give a link to <a href="http://predict.yseq.net/clade-finder">this
 <br>
 <div style="padding-right: 30px;padding-bottom: 50px;padding-left: 30px;text-align: left">
 <h1>Enter SNPs to find Y-Haplogroup from YFull</h1><br>
-Enter positive SNPs separated by commas and hit ENTER.<br><br>
+Enter SNPs in FTDNA format and press ENTER.<br>
+Example:<br><br>
+M343+, L21+, DF13+, DF23+, M222-<br><br>
 <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
 
 <?php if(isset($_POST['input'])) { ?>
-        <input name=input type="text" value="<?php echo $_POST['input']; ?>" maxlength="1500" size="135"></input>
+        <input name=input type="text" value="<?php echo $_POST['input']; ?>" maxlength="5000" size="135"></input>
 
         <?php
 } else { ?>
-        <input name=input type="text" maxlength="1500" size="135"></input><?php
+        <input name=input type="text" maxlength="5000" size="135"></input><?php
 } ?>
 </form>
 
@@ -61,7 +63,7 @@ Enter positive SNPs separated by commas and hit ENTER.<br><br>
         $parsed=$input;
         
         
-        $message = exec('/var/lib/clade-finder/findClade.sh ' . $parsed . ' PH1080');
+        $message = exec('/var/lib/clade-finder/findClade.sh ' . $parsed);
         echo $message . '<br>TEST<br>';
         $predsplit = str_replace("&", "&amp;", $message);
         $predsplit = str_replace("\"", "&quot;", $predsplit);
