@@ -17,10 +17,10 @@ if len(sys.argv) > 3:
     for snp in snps:
         stripped = snp.strip()
         if stripped[-1] == "+":
-            positives.add(stripped)
+            positives.add(stripped[0:-1])
         else:
             if stripped[-1] == "-":
-                negatives.add(stripped)
+                negatives.add(stripped[0:-1])
  
 #tbcladeSNP = tabix.open(cladeSNPFilePath)
 #
