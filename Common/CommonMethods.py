@@ -26,7 +26,7 @@ def getSNPClades(snp, tb):
         clades.append(clade[3])
     return clades
 
-def getParent(clade, tb):
+def getParentTabix(clade, tb):
     try:
         parentResults = tb.querys(clade + ":2-2")
         parent = None
@@ -38,8 +38,19 @@ def getParent(clade, tb):
     except:
         return None
 
+def getChildrenTabix(clade, tb):
+    try:
+        childResults = tb.querys(clade + ":3-3")
+        children = []
+        for childResult in childResults:
+            child = childResult[3]
+            children.append(child)
+        return children
+    except:
+        return []
+    
 def recurseToRootAddParents(clade, hier, tb):
-    parent = getParent(clade, tb)
+    parent = getParentTabix(clade, tb)
     if parent != None:
         hier[clade] = parent
         if parent not in hier:
@@ -297,7 +308,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
             html = html + recommendedPanel + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>"
         for recommendedPanel in panelRootsUpstreamPrediction:
             html = html + recommendedPanel + " [predicted clade falls within this panel - this panel may provide higher resolution]<br>"
-    
+        html = html + "<br><br>" + createSNPStatusHTML(res[1], positives, negatives, tbCladeSNPs)
     print(html)
 
 def isUpstream(predictedClade, panelRoot, hierarchyForClade):
@@ -323,7 +334,38 @@ def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negativ
             else:
                 failed = True
     return passed
-            
+
+def getSNPStatus(snp):
+    return "available to test"
+
+def createSNPStatusHTML(clade, positives, negatives, tbCladeSNPs):
+    children = getChildrenTabix(clade, tbCladeSNPs)
+    snpStatus = {}
+    for child in children:
+        snps = getCladeSNPs(child, tbCladeSNPs)
+        poses = set(positives).intersection(snps)
+        negs = set(negatives).intersection(snps)
+        status = "uncertain"
+        if len(poses) > 0 and len(negs) > 0:
+            status = "Split Result: " + ", ".join(poses) + " positive, " + ", ".join(negs) + " negative"
+        else:
+            if len(poses) > 0:
+                status = "Positive due to " + ", ".join(poses) + " positive"
+            else:
+                if len(negatives) > 0:
+                    status = "Negative due to " + ", ".join(negs) + " negative"
+                else:
+                    status = "Query YSEQ for ordering status of SNP"
+        snpStatus[child] = status
+    if len(children) > 0:
+        html = "Downstream Lineages<br><br><table><tr><td>Clade</td><td>Status</td></tr>"
+        for child in children:
+            html = html + "<tr><td>" + child + "</td><td>" + snpStatus[child] + "</td></tr>"
+        html = html + "</table>"
+    else:
+        html = "No Downstream Lineages Yet Discovered"
+    return html
+        
 #def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negatives, childMap, tbCladeSNPs):
 #    children = getChildren(predictedClade, childMap)
 #    passes = False
