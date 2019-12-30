@@ -336,7 +336,7 @@ def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negativ
     return passed
 
 def getSNPStatus(snp):
-    return "available to test"
+    return "Query YSEQ for ordering status of SNP"
 
 def createSNPStatusHTML(clade, positives, negatives, tbCladeSNPs):
     children = getChildrenTabix(clade, tbCladeSNPs)
@@ -355,7 +355,7 @@ def createSNPStatusHTML(clade, positives, negatives, tbCladeSNPs):
                 if len(negs) > 0:
                     status = "Negative due to " + ", ".join(negs) + " negative"
                 else:
-                    status = "Query YSEQ for ordering status of SNP"
+                    status = getSNPStatus(child)
         snpStatus[child] = status
     if len(children) > 0:
         html = "Downstream Lineages<br><br><table><tr><td>Clade</td><td>Status</td></tr>"
