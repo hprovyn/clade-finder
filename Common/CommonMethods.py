@@ -277,15 +277,37 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
         html = html + "</table>"
         panels = getPanels()
         panelRootHierarchy = createMiminalTreePanelRoots(panels, tbCladeSNPs)
-        recommendedPanels = []
+        panelsDownstreamPrediction = []
+        panelRootsUpstreamPrediction = []
+        panelsEqualToPrediction = []
+        
         for panel in panels:
-            if isDownstreamPredictionAndNotBelowNegative(res[1],panel,negatives,panelRootHierarchy,tbCladeSNPs):
-                recommendedPanels.append(panel)
+            if panel == res[1]:
+                panelsEqualToPrediction.append(panel)
+            else:
+                if isUpstream(res[1],panel,hierarchy):
+                    panelRootsUpstreamPrediction.append(panel)
+                else:
+                    if isDownstreamPredictionAndNotBelowNegative(res[1],panel,negatives,panelRootHierarchy,tbCladeSNPs):
+                        panelsDownstreamPrediction.append(panel)
         html = html + "<br><br>Recommended Panels<br><br>"
-        for recommendedPanel in recommendedPanels:
-            html = html + recommendedPanel + "<br>"
+        for recommendedPanel in panelsEqualToPrediction:
+            html = html + recommendedPanel + " [this panel is applicable and will definitely provide higher resolution]<br>"
+        for recommendedPanel in panelsDownstreamPrediction:
+            html = html + recommendedPanel + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>"
+        for recommendedPanel in panelRootsUpstreamPrediction:
+            html = html + recommendedPanel + " [predicted clade falls within this panel - this panel may provide higher resolution]<br>"
     
     print(html)
+
+def isUpstream(predictedClade, panelRoot, hierarchyForClade):
+    sequence = getTotalSequence(predictedClade, hierarchyForClade)
+    passed = False
+    for clade in sequence:
+        if not passed:
+            if clade == panelRoot:
+                passed = True
+    return passed
 
 def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negatives, hierarchy, tbCladeSNPs):
     sequence = getTotalSequence(panelRoot, hierarchy)
