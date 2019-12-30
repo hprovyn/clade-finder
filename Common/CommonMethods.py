@@ -64,6 +64,12 @@ def createMinimalTree(positives, tbSNPclades, tbCladeSNPs):
         recurseToRootAddParents(clade, hier, tbCladeSNPs)
     return hier
 
+def createMiminalTreePanelRoots(panelRoots, tbCladeSNPs):
+    hier = {}
+    for clade in panelRoots:
+        recurseToRootAddParents(clade, hier, tbCladeSNPs)
+    return hier
+
 def createCladeSNPs(hierarchy, tb):
     cladeSNPs = {}
     for clade in hierarchy:
@@ -249,7 +255,10 @@ def recurseDownTree(positives, childParents, childMap, cladeSNPs, solutions):
     for sequence in sequences:
         newSequences.append([sequence])
     refineHitsRecursively(newSequences, positives, childParents, childMap, cladeSNPs, solutions)
-    
+
+def getPanels():
+    return ["J-M102","G","E","R1b","R1a","O"]
+
 def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)    
@@ -266,6 +275,44 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
         for res in b:
             html = html + '<tr><td><a href="https://www.yfull.com/tree/' + res[1] + '">' + res[1] + "</a></td><td>" + str(res[2]) + "</td></tr>"
         html = html + "</table>"
+        panels = getPanels()
+        panelRootHierarchy = createMiminalTreePanelRoots(panels, tbCladeSNPs)
+        recommendedPanels = []
+        for panel in panels:
+            if isDownstreamPredictionAndNotBelowNegative(res[1],panel,negatives,panelRootHierarchy,tbCladeSNPs):
+                recommendedPanels.append(panel)
+        html = html + "<br><br>Recommended Panels<br><br>"
+        for recommendedPanel in recommendedPanels:
+            html = html + recommendedPanel + "<br>"
+    
     print(html)
-        
 
+def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negatives, hierarchy, tbCladeSNPs):
+    sequence = getTotalSequence(panelRoot, hierarchy)
+    passed = False
+    failed = False    
+    for clade in sequence:
+        if not failed and not passed:
+            snps = set(getCladeSNPs(clade, tbCladeSNPs))
+            intersects = len(snps.intersection(negatives))
+            if intersects == 0:
+                if predictedClade == clade:
+                    passed = True
+            else:
+                failed = True
+    return passed
+            
+#def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negatives, childMap, tbCladeSNPs):
+#    children = getChildren(predictedClade, childMap)
+#    passes = False
+#    for child in children:
+#        snps = set(getCladeSNPs(child, tbCladeSNPs))
+#        intersects = len(snps.intersection(negatives))
+#        if intersects == 0:
+#            passes = passes or isDownstreamPredictionAndNotBelowNegative(child, panelRoot, negatives, childMap, tbCladeSNPs)
+#            
+#        
+#def recommendPanel(prediction, positives, negatives):
+#    allpanels = {}
+#    for panel in allpanels:
+        
