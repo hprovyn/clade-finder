@@ -60,9 +60,7 @@ M343+, L21+, DF13+, DF23+, M222-<br><br>
         $unrecognized = array();
         ?>
         <?php $input = trim($_POST["input"]);
-        $parsed=$input;
-        
-        
+        $parsed=str_replace(" ", "", $input);
         $message = exec('/var/lib/clade-finder/findClade.sh ' . $parsed);
         echo $message . '<br>TEST<br>';
         $predsplit = str_replace("&", "&amp;", $message);

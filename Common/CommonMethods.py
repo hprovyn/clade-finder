@@ -299,7 +299,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
                 if isUpstream(res[1],panel,hierarchy):
                     panelRootsUpstreamPrediction.append(panel)
                 else:
-                    if isDownstreamPredictionAndNotBelowNegative(res[1],panel,negatives,panelRootHierarchy,tbCladeSNPs):
+                    if isDownstreamPredictionAndNotBelowNegative(b[0][1],panel,negatives,panelRootHierarchy,tbCladeSNPs):
                         panelsDownstreamPrediction.append(panel)
         html = html + "<br><br>Recommended Panels<br><br>"
         for recommendedPanel in panelsEqualToPrediction:
@@ -308,7 +308,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
             html = html + recommendedPanel + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>"
         for recommendedPanel in panelRootsUpstreamPrediction:
             html = html + recommendedPanel + " [predicted clade falls within this panel - this panel may provide higher resolution]<br>"
-        html = html + "<br><br>" + createSNPStatusHTML(res[1], positives, negatives, tbCladeSNPs)
+        html = html + "<br><br>" + createSNPStatusHTML(b[0][1], positives, negatives, tbCladeSNPs)
     print(html)
 
 def isUpstream(predictedClade, panelRoot, hierarchyForClade):
