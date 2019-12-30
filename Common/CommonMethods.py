@@ -352,7 +352,7 @@ def createSNPStatusHTML(clade, positives, negatives, tbCladeSNPs):
             if len(poses) > 0:
                 status = "Positive due to " + ", ".join(poses) + " positive"
             else:
-                if len(negatives) > 0:
+                if len(negs) > 0:
                     status = "Negative due to " + ", ".join(negs) + " negative"
                 else:
                     status = "Query YSEQ for ordering status of SNP"
