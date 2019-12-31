@@ -398,9 +398,9 @@ def recurseDownCladeWithinPanel(clade, childMap, panelClades, possible):
                 possible.append(child)
             recurseDownCladeWithinPanel(child, childMap, panelClades, possible)
     
-def getSNPpanelStats(clade, panel, tbSNPclades, tbCladeSNPs):
-    panelSNPs = getPanelSNPs(panel)
-    panelClades = getCladesFromSNPpanel(panelSNPs, panel, tbSNPclades)
+def getSNPpanelStats(predictedClade, panelRootClade, tbSNPclades, tbCladeSNPs):
+    panelSNPs = getPanelSNPs(panelRootClade)
+    panelClades = getCladesFromSNPpanel(panelSNPs, panelRootClade, tbSNPclades)
     
     hier = {}
     for clade in panelClades:
@@ -410,8 +410,7 @@ def getSNPpanelStats(clade, panel, tbSNPclades, tbCladeSNPs):
     
     panelPositiveClades = []
     
-    curr = clade
-    panelRootClade = "J-M102"
+    curr = predictedClade
     
     while curr in hier and curr != panelRootClade:
         if curr in panelClades:
@@ -422,7 +421,7 @@ def getSNPpanelStats(clade, panel, tbSNPclades, tbCladeSNPs):
         panelPositiveClades.append(curr)
         
     possibleRemaining = []
-    recurseDownCladeWithinPanel(clade, childMap, panelClades, possibleRemaining)
+    recurseDownCladeWithinPanel(predictedClade, childMap, panelClades, possibleRemaining)
     
     
     
