@@ -393,7 +393,7 @@ def recurseDownCladeWithinPanel(clade, childMap, panelClades, possible):
     for child in childMap(clade):
         if child in panelClades:
             possible.append(child)
-            recurseDownCladeWithinPanel(child, childMap, panelClades, possible)
+        recurseDownCladeWithinPanel(child, childMap, panelClades, possible)
     
 def getSNPpanelStats(clade, panel, tbSNPclades, tbCladeSNPs):
     panelSNPs = getPanelSNPs(panel)
