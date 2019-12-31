@@ -308,6 +308,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
             html = html + recommendedPanel + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>"
         for recommendedPanel in panelRootsUpstreamPrediction:
             html = html + recommendedPanel + " [predicted clade falls within this panel - this panel may provide higher resolution]<br>"
+            html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
         html = html + "<br><br>" + createSNPStatusHTML(b[0][1], positives, negatives, tbCladeSNPs)
     print(html)
 
@@ -365,7 +366,68 @@ def createSNPStatusHTML(clade, positives, negatives, tbCladeSNPs):
     else:
         html = "No Downstream Lineages Yet Discovered"
     return html
+
+def getPanelSNPs(panel):
+    return ["M241","L283","Z2432","Z1297","Z1295","CTS15058","CTS6190","Z631","Z1043","Y87609","PH1553"]   
+
+def getCladesFromSNPpanel(snps, panel, tbSNPclades):
+    prefix = panel[0]
+    clades = []
+    unknownPanelSNPs = []
+    for snp in snps:
+        theclades = getSNPClades(snp, tbSNPclades)
+        if len(theclades) == 1:
+            clades.append(theclades[0])
+        else:
+            if len(theclades) > 1:
+                theclade = None
+                for clade in theclades:
+                    if clade[0] == prefix:
+                        theclade = clade
+                clades.append(theclade)
+            else:
+                unknownPanelSNPs.append(snp)
+    return clades
+
+def recurseDownCladeWithinPanel(clade, childMap, panelClades, possible):
+    for child in childMap(clade):
+        if child in panelClades:
+            possible.append(child)
+            recurseDownCladeWithinPanel(child, childMap, panelClades, possible)
+    
+def getSNPpanelStats(clade, panel, tbSNPclades, tbCladeSNPs):
+    panelSNPs = getPanelSNPs(panel)
+    panelClades = getCladesFromSNPpanel(panelSNPs, panel, tbSNPclades)
+    
+    hier = {}
+    for clade in panelClades:
+        recurseToRootAddParents(clade, hier, tbCladeSNPs)
+
+    childMap = createChildMap(hier)
+    
+    panelPositiveClades = []
+    
+    curr = clade
+    panelRootClade = "J-M102"
+    
+    while curr in hier and curr != panelRootClade:
+        if curr in panelClades:
+            panelPositiveClades.append(curr)
+        curr = hier[curr]
+    
+    if curr == panelRootClade:
+        panelPositiveClades.append(curr)
         
+    possibleRemaining = []
+    recurseDownCladeWithinPanel(clade, childMap, panelClades, possibleRemaining)
+    
+    
+    
+    #maximumTestsToTerminalSubclade = None
+    #meanTestsToTerminalSubcladeGivenNoAprioris = None
+    #expectedTestsToTerminalSubcladeGivenYFullAprioris = None
+    return "total positive: " + len(panelPositiveClades) + ", possible remaining:" + len(possibleRemaining)
+    
 #def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negatives, childMap, tbCladeSNPs):
 #    children = getChildren(predictedClade, childMap)
 #    passes = False
