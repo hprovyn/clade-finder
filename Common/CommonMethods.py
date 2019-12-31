@@ -19,13 +19,15 @@ def getCladeSNPs(clade, tb):
         return []
 
 def getSNPClades(snp, tb):
+    try:
+        SNPresults = tb.querys(snp + ":1-1")
+        clades = []
+        for clade in SNPresults:
+            clades.append(clade[3])
+        return clades
+    except:
+        return []
     
-    SNPresults = tb.querys(snp + ":1-1")
-    clades = []
-    for clade in SNPresults:
-        clades.append(clade[3])
-    return clades
-
 def getParentTabix(clade, tb):
     try:
         parentResults = tb.querys(clade + ":2-2")
