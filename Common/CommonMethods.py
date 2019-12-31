@@ -373,7 +373,6 @@ def getPanelSNPs(panel):
     return ["M241","L283","Z2432","Z1297","Z1295","CTS15058","CTS6190","Z631","Z1043","Y87609","PH1553"]   
 
 def getCladesFromSNPpanel(snps, panel, tbSNPclades):
-    prefix = panel[0]
     clades = []
     unknownPanelSNPs = []
     for snp in snps:
@@ -383,7 +382,7 @@ def getCladesFromSNPpanel(snps, panel, tbSNPclades):
         else:
             if len(theclades) > 1:
                 for clade in theclades:
-                    if clade[0] == prefix:                        
+                    if clade[0] == panel[0]:                        
                         clades.append(clade)
             else:
                 unknownPanelSNPs.append(snp)
