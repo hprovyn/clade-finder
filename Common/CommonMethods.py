@@ -421,8 +421,10 @@ def getSNPpanelStats(predictedClade, panelRootClade, tbSNPclades, tbCladeSNPs):
         panelPositiveClades.append(curr)
         
     possibleRemaining = []
-    recurseDownCladeWithinPanel(predictedClade, childMap, panelClades, possibleRemaining)
     
+    recurseDownCladeWithinPanel(predictedClade, childMap, panelClades, possibleRemaining)
+    if predictedClade in possibleRemaining:
+        possibleRemaining.remove(predictedClade)
     
     
     #maximumTestsToTerminalSubclade = None
