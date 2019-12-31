@@ -430,7 +430,7 @@ def getSNPpanelStats(predictedClade, panelRootClade, tbSNPclades, tbCladeSNPs):
     #maximumTestsToTerminalSubclade = None
     #meanTestsToTerminalSubcladeGivenNoAprioris = None
     #expectedTestsToTerminalSubcladeGivenYFullAprioris = None
-    return "total positive: " + str(len(panelPositiveClades)) + ", possible remaining: " + str(len(possibleRemaining))
+    return "panelClades: " + str(panelClades) + ", total positive: " + str(panelPositiveClades) + ", possible remaining: " + str(possibleRemaining)
     
 #def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negatives, childMap, tbCladeSNPs):
 #    children = getChildren(predictedClade, childMap)
