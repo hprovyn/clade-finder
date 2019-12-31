@@ -61,8 +61,10 @@ M343+, L21+, DF13+, DF23+, M222-<br><br>
         ?>
         <?php $input = trim($_POST["input"]);
         $parsed=str_replace(" ", "", $input);
-        $message = exec('/var/lib/clade-finder/findClade.sh ' . $parsed);
-        echo $message . '<br>TEST<br>';
+        exec('/var/lib/clade-finder/findClade.sh ' . $parsed . ' 2>&1', $output);
+        print_r($output);
+        #$message = exec('/var/lib/clade-finder/findClade.sh ' . $parsed);
+        #echo $message . '<br>TEST<br>';
         $predsplit = str_replace("&", "&amp;", $message);
         $predsplit = str_replace("\"", "&quot;", $predsplit);
         echo '<b>Prediction</b><div style="outline: 1px solid black" width="880" height="250"><div id="pred" style="padding:10px;overflow-y: scroll;max-height:230px" id="pred" width="860" height="230"></div></div><br><br>';       
