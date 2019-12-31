@@ -370,7 +370,7 @@ def createSNPStatusHTML(clade, positives, negatives, tbCladeSNPs):
     return html
 
 def getPanelSNPs(panel):
-    return ["M241","L283","Z2432","Z1297","Z1295","CTS15058","CTS6190","Z631","Z1043","Y87609","PH1553","Y26712"]   
+    return ["M241","L283","Z2432","Z1297","Z1295","CTS15058","CTS6190","Z631","Z1043","Y87609","PH1553","Y26712", "Y32998", "Y29720","Z8424","Y98609","M102"]   
 
 def getCladesFromSNPpanel(snps, panel, tbSNPclades):
     clades = []
