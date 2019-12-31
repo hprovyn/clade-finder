@@ -390,10 +390,11 @@ def getCladesFromSNPpanel(snps, panel, tbSNPclades):
     return clades
 
 def recurseDownCladeWithinPanel(clade, childMap, panelClades, possible):
-    for child in childMap(clade):
-        if child in panelClades:
-            possible.append(child)
-        recurseDownCladeWithinPanel(child, childMap, panelClades, possible)
+    if clade in childMap:
+        for child in childMap[clade]:
+            if child in panelClades:
+                possible.append(child)
+            recurseDownCladeWithinPanel(child, childMap, panelClades, possible)
     
 def getSNPpanelStats(clade, panel, tbSNPclades, tbCladeSNPs):
     panelSNPs = getPanelSNPs(panel)
@@ -426,7 +427,7 @@ def getSNPpanelStats(clade, panel, tbSNPclades, tbCladeSNPs):
     #maximumTestsToTerminalSubclade = None
     #meanTestsToTerminalSubcladeGivenNoAprioris = None
     #expectedTestsToTerminalSubcladeGivenYFullAprioris = None
-    return "total positive: " + str(len(panelPositiveClades)) + ", possible remaining:" + str(len(possibleRemaining))
+    return "total positive: " + str(len(panelPositiveClades)) + ", possible remaining: " + str(len(possibleRemaining))
     
 #def isDownstreamPredictionAndNotBelowNegative(predictedClade, panelRoot, negatives, childMap, tbCladeSNPs):
 #    children = getChildren(predictedClade, childMap)
