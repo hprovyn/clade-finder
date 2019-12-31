@@ -382,11 +382,9 @@ def getCladesFromSNPpanel(snps, panel, tbSNPclades):
             clades.append(theclades[0])
         else:
             if len(theclades) > 1:
-                theclade = None
                 for clade in theclades:
-                    if clade[0] == prefix:
-                        theclade = clade
-                clades.append(theclade)
+                    if clade[0] == prefix:                        
+                        clades.append(clade)
             else:
                 unknownPanelSNPs.append(snp)
     return clades
