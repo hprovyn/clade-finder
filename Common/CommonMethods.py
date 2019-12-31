@@ -394,9 +394,9 @@ def getCladesFromSNPpanel(snps, panel, tbSNPclades):
 def recurseDownCladeWithinPanel(clade, childMap, panelClades, possible):
     if clade in childMap:
         for child in childMap[clade]:
-            if child in panelClades:
-                possible.append(child)
             recurseDownCladeWithinPanel(child, childMap, panelClades, possible)
+    if clade in panelClades:
+        possible.append(clade)
     
 def getSNPpanelStats(predictedClade, panelRootClade, tbSNPclades, tbCladeSNPs):
     panelSNPs = getPanelSNPs(panelRootClade)
