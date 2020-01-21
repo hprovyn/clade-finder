@@ -302,6 +302,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
         panelRootsUpstreamPrediction = []
         panelsEqualToPrediction = []
         
+        
         for panel in panels:
             if panel == res[1]:
                 panelsEqualToPrediction.append(panel)
@@ -311,12 +312,21 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
                 else:
                     if isDownstreamPredictionAndNotBelowNegative(b[0][1],panel,negatives,panelRootHierarchy,tbCladeSNPs):
                         panelsDownstreamPrediction.append(panel)
+        def sortPanelRootsUpstream(panels, clade, hierarchy):
+            thesorted = []
+            for cld in getTotalSequence(clade, hierarchy):
+                for panel in panels:
+                    if panel == cld:
+                        thesorted.append(panel)
+            thesorted.reverse()
+            return thesorted
+                
         html = html + "<br><br>Recommended Panels<br><br>"
         for recommendedPanel in panelsEqualToPrediction:
             html = html + recommendedPanel + " [this panel is applicable and will definitely provide higher resolution]<br>"
         for recommendedPanel in panelsDownstreamPrediction:
             html = html + recommendedPanel + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>"
-        for recommendedPanel in panelRootsUpstreamPrediction:
+        for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, res[1], hierarchy):
             html = html + recommendedPanel + " [predicted clade falls within this panel - this panel may provide higher resolution]<br>"
             #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
         html = html + "<br><br>" + createSNPStatusHTML(b[0][1], positives, negatives, tbCladeSNPs)
