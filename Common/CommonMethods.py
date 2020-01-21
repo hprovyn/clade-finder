@@ -323,7 +323,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
             else:
                 return [thesorted[0]]
                 
-        html = html + "<br><br>Recommended Panels<br><br>"
+        html = html + "<br><br><b>Recommended Panels<b><br><br>"
         count = 0
         for recommendedPanel in panelsEqualToPrediction:
             count = count + 1
@@ -333,9 +333,9 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
             for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, res[1], hierarchy):
                 count = count + 1
                 html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + res[1] + " is downstream of the panel root. This panel is applicable and may provide higher resolution to the extent that it tests subclades below " + res[1] + ".</i><br><br>"
-        for recommendedPanel in panelsDownstreamPrediction:
-            count = count + 1
-            html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Subject has not tested positive for root SNP. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel.</i><br><br>"
+            for recommendedPanel in panelsDownstreamPrediction:
+                count = count + 1
+                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Subject has not tested positive for root SNP. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel.</i><br><br>"
 
             #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
         html = html + "<br><br>" + createSNPStatusHTML(b[0][1], positives, negatives, tbCladeSNPs)
@@ -388,12 +388,12 @@ def createSNPStatusHTML(clade, positives, negatives, tbCladeSNPs):
                     status = getSNPStatus(child)
         snpStatus[child] = status
     if len(children) > 0:
-        html = "Downstream Lineages<br><br><table><tr><td>Clade</td><td>Status</td></tr>"
+        html = "<b>Downstream Lineages</b><br><br><table><tr><td>Clade</td><td>Status</td></tr>"
         for child in children:
             html = html + "<tr><td>" + child + "</td><td>" + snpStatus[child] + "</td></tr>"
         html = html + "</table>"
     else:
-        html = "No Downstream Lineages Yet Discovered"
+        html = "<b>No Downstream Lineages Yet Discovered</b>"
     return html
 
 def getPanelSNPs(panel):
