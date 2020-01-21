@@ -323,7 +323,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
             else:
                 return [thesorted[0]]
                 
-        html = html + "<br><br><b>Recommended Panels<b><br><br>"
+        html = html + "<br><br><b>Recommended Panels</b><br><br>"
         count = 0
         for recommendedPanel in panelsEqualToPrediction:
             count = count + 1
