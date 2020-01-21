@@ -8,10 +8,11 @@ Created on Tue Dec 24 13:51:27 2019
 from Common import CommonMethods
 import sys
 
-if len(sys.argv) > 3:
+if len(sys.argv) > 4:
     tbCladeSNPFile = sys.argv[1]
     tbSNPcladeFile = sys.argv[2]
     snps = sys.argv[3].split(",")
+    snpPanelConfigFile = sys.argv[4]
     positives = set([])
     negatives = set([])
     for snp in snps:
@@ -34,7 +35,7 @@ if len(sys.argv) > 3:
 #print(", ".join(getSNPClades("M12")))
 #print(", ".join(getSNPClades("USP9YPLUS3636")))
 
-CommonMethods.findClade(positives, negatives, tbCladeSNPFile, tbSNPcladeFile)
+CommonMethods.findClade(positives, negatives, tbCladeSNPFile, tbSNPcladeFile, snpPanelConfigFile)
         
 #hier = createMinimalTree(["PH1080","USP9YPLUS3636","Z1043"])
 #print(", ".join(list(hier.keys())))

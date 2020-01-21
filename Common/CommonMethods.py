@@ -269,10 +269,18 @@ def recurseDownTree(positives, childParents, childMap, cladeSNPs, solutions):
         newSequences.append([sequence])
     refineHitsRecursively(newSequences, positives, childParents, childMap, cladeSNPs, solutions)
 
-def getPanels():
-    return ["J-M102","G","E","R1b","R1a","O"]
+import json
 
-def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
+def getPanels(snpPanelConfigFile):
+    snpPanelsJson = json.load(open(snpPanelConfigFile))
+    yfullCladePanels = {}
+    for key in snpPanelsJson:
+        branches = snpPanelsJson[key]["branches"]
+        for branch in branches:
+            yfullCladePanels[branch.replace("*","")] = snpPanelsJson[key]["html"]
+    return yfullCladePanels
+
+def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)    
     hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
@@ -288,7 +296,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
         for res in b:
             html = html + '<tr><td><a href="https://www.yfull.com/tree/' + res[1] + '">' + res[1] + "</a></td><td>" + str(res[2]) + "</td></tr>"
         html = html + "</table>"
-        panels = getPanels()
+        panels = getPanels(snpPanelConfigFile)
         panelRootHierarchy = createMiminalTreePanelRoots(panels, tbCladeSNPs)
         panelsDownstreamPrediction = []
         panelRootsUpstreamPrediction = []

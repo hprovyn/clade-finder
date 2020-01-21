@@ -1,5 +1,6 @@
 pythonPath=#python directory
 htslibPath=#htslib directory containing tabix and bgzip
+snpPanelConfigPath=#SNP panel configuration file
 pathSeparator=#windows '\', unix '/'
 pythonScriptsDir=#directory where you put the python scripts
 workingDir=#directory to put all files necessary to run the experiment
