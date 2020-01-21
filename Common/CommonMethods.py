@@ -327,13 +327,15 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
         count = 0
         for recommendedPanel in panelsEqualToPrediction:
             count = count + 1
-            html = html + str(count) + ". " + recommendedPanel + " " + panels[recommendedPanel] + " [this panel is applicable and will definitely provide higher resolution]<br>"
-        for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, res[1], hierarchy):
-            count = count + 1
-            html = html + str(count) + ". " + recommendedPanel + " " + panels[recommendedPanel] + " [predicted clade is downstream of panel root - this panel may provide higher resolution]<br>"
+            html = html + str(count) + ". " + panels[recommendedPanel] + " Predicted " + res[1] + " is the panel root. This panel is applicable and will definitely provide higher resolution<br>"
+        
+        if count == 0:
+            for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, res[1], hierarchy):
+                count = count + 1
+                html = html + str(count) + ". " + panels[recommendedPanel] + " Predicted " + res[1] + " is downstream of the panel root. This panel is applicable and may provide higher resolution if it tests subclades below " + res[1] + "<br>"
         for recommendedPanel in panelsDownstreamPrediction:
             count = count + 1
-            html = html + str(count) + ". " + recommendedPanel + " " + panels[recommendedPanel] + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>"
+            html = html + str(count) + ". " + panels[recommendedPanel] + " Panel may be applicable, but not guaranteed until confirmed positive for panel root SNP<br>"
 
             #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
         html = html + "<br><br>" + createSNPStatusHTML(b[0][1], positives, negatives, tbCladeSNPs)
