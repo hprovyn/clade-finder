@@ -318,7 +318,10 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
                 for panel in panels:
                     if panel == cld:
                         thesorted.append(panel)
-            return thesorted[0]
+            if len(thesorted) == 0:
+                return []
+            else:
+                return thesorted[0]
                 
         html = html + "<br><br>Recommended Panels<br><br>"
         count = 0
