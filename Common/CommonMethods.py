@@ -321,7 +321,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
             if len(thesorted) == 0:
                 return []
             else:
-                return thesorted[0]
+                return [thesorted[0]]
                 
         html = html + "<br><br>Recommended Panels<br><br>"
         count = 0
