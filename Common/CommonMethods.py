@@ -318,15 +318,20 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
                 for panel in panels:
                     if panel == cld:
                         thesorted.append(panel)
-            return thesorted
+            return thesorted[0]
                 
         html = html + "<br><br>Recommended Panels<br><br>"
+        count = 0
         for recommendedPanel in panelsEqualToPrediction:
-            html = html + recommendedPanel + " [this panel is applicable and will definitely provide higher resolution]<br>" + panels[recommendedPanel] + "<br>"
-        for recommendedPanel in panelsDownstreamPrediction:
-            html = html + recommendedPanel + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>" + panels[recommendedPanel] + "<br>"
+            count = count + 1
+            html = html + str(count) + ". " + recommendedPanel + " " + panels[recommendedPanel] + " [this panel is applicable and will definitely provide higher resolution]<br>"
         for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, res[1], hierarchy):
-            html = html + recommendedPanel + " [predicted clade is downstream of panel root - this panel may provide higher resolution]<br>" + panels[recommendedPanel] + "<br>"
+            count = count + 1
+            html = html + str(count) + ". " + recommendedPanel + " " + panels[recommendedPanel] + " [predicted clade is downstream of panel root - this panel may provide higher resolution]<br>"
+        for recommendedPanel in panelsDownstreamPrediction:
+            count = count + 1
+            html = html + str(count) + ". " + recommendedPanel + " " + panels[recommendedPanel] + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>"
+
             #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
         html = html + "<br><br>" + createSNPStatusHTML(b[0][1], positives, negatives, tbCladeSNPs)
     print(html)
