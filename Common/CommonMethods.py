@@ -318,7 +318,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
             html = html + recommendedPanel + " [this panel may be applicable, but not guaranteed until confirmed positive for panel root SNP]<br>"
         for recommendedPanel in panelRootsUpstreamPrediction:
             html = html + recommendedPanel + " [predicted clade falls within this panel - this panel may provide higher resolution]<br>"
-            html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
+            #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
         html = html + "<br><br>" + createSNPStatusHTML(b[0][1], positives, negatives, tbCladeSNPs)
     print(html)
 
