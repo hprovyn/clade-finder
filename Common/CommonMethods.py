@@ -280,9 +280,7 @@ def getPanels(snpPanelConfigFile):
             yfullCladePanels[branch.replace("*","")] = snpPanelsJson[key]["html"]
     return yfullCladePanels
 
-def getRankedSolutionsScratch(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
-    tbSNPclades = tabix.open(tbSNPcladesFile)
-    tbCladeSNPs = tabix.open(tbCladeSNPsFile)    
+def getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades):
     hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
     print(hierarchy)
     childMap = createChildMap(hierarchy)
@@ -295,18 +293,46 @@ def getRankedSolutionsScratch(positives, negatives, tbCladeSNPsFile, tbSNPclades
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
 
+def decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs):
+    theobj = {}
+    theobj["clade"] = clade
+    if "downstream" in params:
+        theobj["downstream"] = getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs)
+    return theobj
+    
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
-    ranked = getRankedSolutionsScratch(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile)
+    tbSNPclades = tabix.open(tbSNPcladesFile)
+    tbCladeSNPs = tabix.open(tbCladeSNPsFile)  
+    ranked = getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades)
     if "all" in params:
         result = []
-        for r in ranked:
-            result.append({"clade":r[1]})
+        for r in ranked:  
+            clade = r[1]
+            result.append(decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs))
         return result
     else:
         if len(ranked) > 0:
-            return {"clade": ranked[0][1]}
+            clade = ranked[0][1]
+            return {decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs)}
         else:
             return {"clade": "unable to determine"}        
+
+def getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs):
+    children = getChildrenTabix(clade, tbCladeSNPs)
+    snpStatus = {}
+    for child in children:
+        snps = getCladeSNPs(child, tbCladeSNPs)
+        snpStatus[child] = {}
+        poses = set(positives).intersection(snps)
+        negs = set(negatives).intersection(snps)
+        for snp in snps:
+            if snp in poses:
+                snpStatus[child][snp] = "+"
+            elif snp in negs:
+                snpStatus[child][snp] = "-"
+            else:
+                snpStatus[child][snp] = "?"
+    return snpStatus
     
 def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
