@@ -280,6 +280,34 @@ def getPanels(snpPanelConfigFile):
             yfullCladePanels[branch.replace("*","")] = snpPanelsJson[key]["html"]
     return yfullCladePanels
 
+def getRankedSolutionsScratch(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
+    tbSNPclades = tabix.open(tbSNPcladesFile)
+    tbCladeSNPs = tabix.open(tbCladeSNPsFile)    
+    hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
+    print(hierarchy)
+    childMap = createChildMap(hierarchy)
+    print(childMap)
+    cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
+    print(cladeSNPs)
+    b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
+    return b
+
+def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
+    return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
+
+def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
+    ranked = getRankedSolutionsScratch(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile)
+    if "all" in params:
+        result = []
+        for r in ranked:
+            result.append({"clade":r[1]})
+        return result
+    else:
+        if len(ranked) > 0:
+            return {"clade": ranked[0][1]}
+        else:
+            return {"clade": "unable to determine"}        
+    
 def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)    
