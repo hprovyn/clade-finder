@@ -1,3 +1,10 @@
+
+<?php if(isset($_POST['input']) and isset($_POST['json'])) { 
+        echo "{'json':'thing'}";
+} else {
+        ?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -87,3 +94,6 @@ document.getElementById("pred").innerHTML = content;
 
 </body>
 </html>
+<?php
+}
+?>
