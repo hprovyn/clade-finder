@@ -298,6 +298,8 @@ def decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs):
     theobj["clade"] = clade
     if "downstream" in params:
         theobj["downstream"] = getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs)
+    if "phyloeq" in params:
+        theobj["phyloeq"] = getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs)
     return theobj
     
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
@@ -317,21 +319,25 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
         else:
             return {"clade": "unable to determine"}        
 
+def getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs):
+    status = {}
+    snps = getCladeSNPs(clade, tbCladeSNPs)
+    poses = set(positives).intersection(snps)
+    negs = set(negatives).intersection(snps)
+    for snp in snps:
+        if snp in poses:
+            status[snp] = "+"
+        elif snp in negs:
+            status[snp] = "-"
+        else:
+            status[snp] = "?"
+    return status
+
 def getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs):
     children = getChildrenTabix(clade, tbCladeSNPs)
     snpStatus = {}
     for child in children:
-        snps = getCladeSNPs(child, tbCladeSNPs)
-        snpStatus[child] = {}
-        poses = set(positives).intersection(snps)
-        negs = set(negatives).intersection(snps)
-        for snp in snps:
-            if snp in poses:
-                snpStatus[child][snp] = "+"
-            elif snp in negs:
-                snpStatus[child][snp] = "-"
-            else:
-                snpStatus[child][snp] = "?"
+        snpStatus[child] = getCladeSNPStatusJSONObject(child, positives, negatives, tbCladeSNPs)
     return snpStatus
     
 def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
