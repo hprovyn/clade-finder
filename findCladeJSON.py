@@ -37,4 +37,4 @@ if len(sys.argv) > 4:
 #print(", ".join(getSNPClades("M12")))
 #print(", ".join(getSNPClades("USP9YPLUS3636")))
 
-CommonMethods.getJSON(params, positives, negatives, tbCladeSNPFile, tbSNPcladeFile)
+print(CommonMethods.getJSON(params, positives, negatives, tbCladeSNPFile, tbSNPcladeFile))
