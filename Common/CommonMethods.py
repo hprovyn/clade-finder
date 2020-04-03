@@ -320,8 +320,11 @@ def decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs):
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
+    print(", ".join(positives))
+    print(", ".join(negatives))
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
+    
     print("positives :" + ", ".join(list(uniqPositives)))
     print("negatives :" + ", ".join(list(uniqNegatives)))
     conflicting = uniqPositives.intersection(uniqNegatives)
