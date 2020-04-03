@@ -322,6 +322,9 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
+    conflicting = uniqPositives.intersection(uniqNegatives)
+    if len(conflicting) > 0:
+        return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
     ranked = getRankedSolutionsScratch(uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
     if "all" in params:
         result = []
