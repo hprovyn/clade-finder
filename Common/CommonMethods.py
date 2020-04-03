@@ -54,17 +54,17 @@ def getChildrenTabix(clade, tb):
 def getUniqueSNPTabix(snp, tb):
     try:
         uniqueSNPResults = tb.querys(snp + ":2-2")
+        returnval = snp
         for uniqueSNPResult in uniqueSNPResults:
             if uniqueSNPResult[3] is not None:
-                return uniqueSNPResult[3]
-            else:
-                return snp
+                returnval = uniqueSNPResult[3]
+        return returnval
     except:
         return snp
     
 def getUniqueSNPsetTabix(snps, tb):
     uniqueSNPs = set([])
-    for snp in list(snps):
+    for snp in snps:
         uniqueSNPs.add(getUniqueSNPTabix(snp, tb))
     return uniqueSNPs
     
