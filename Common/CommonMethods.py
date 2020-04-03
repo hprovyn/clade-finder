@@ -322,8 +322,8 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
-    print("positives :" + ", ".join(uniqPositives))
-    print("negatives :" + ", ".join(uniqNegatives))
+    print("positives :" + ", ".join(list(uniqPositives)))
+    print("negatives :" + ", ".join(list(uniqNegatives)))
     conflicting = uniqPositives.intersection(uniqNegatives)
     if len(conflicting) > 0:
         return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
