@@ -61,7 +61,7 @@ def getUniqueSNPTabix(snp, tb):
     
 def getUniqueSNPsetTabix(snps, tb):
     uniqueSNPs = set([])
-    for snp in snps:
+    for snp in list(snps):
         uniqueSNPs.add(getUniqueSNPTabix(snp, tb))
     return uniqueSNPs
     
