@@ -55,6 +55,7 @@ def getUniqueSNPTabix(snp, tb):
     try:
         uniqueSNPResults = tb.querys(snp + ":2-2")
         for uniqueSNPResult in uniqueSNPResults:
+            print (str(uniqueSNPResult[3]))
             return uniqueSNPResult[3]
     except:
         return snp
