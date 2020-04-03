@@ -65,7 +65,10 @@ def getUniqueSNPTabix(snp, tb):
 def getUniqueSNPsetTabix(snps, tb):
     uniqueSNPs = set([])
     for snp in snps:
-        uniqueSNPs.add(getUniqueSNPTabix(snp, tb))
+        uniqSNP = getUniqueSNPTabix(snp, tb)
+        print(snp, uniqSNP)
+        if uniqSNP is not None:
+            uniqueSNPs.add(uniqSNP)
     return uniqueSNPs
     
 def recurseToRootAddParents(clade, hier, tb):
