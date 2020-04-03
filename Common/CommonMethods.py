@@ -296,17 +296,16 @@ def getPanels(snpPanelConfigFile):
 
 def getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades):
     hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
-    uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
-    uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     print(hierarchy)
     childMap = createChildMap(hierarchy)
     print(childMap)
     cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
     print(cladeSNPs)
-    b = getRankedSolutions(uniqPositives, uniqNegatives, hierarchy, childMap, cladeSNPs)
+    b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
     return b
 
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
+    
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
 
 def decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs):
@@ -320,18 +319,20 @@ def decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs):
     
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
-    tbCladeSNPs = tabix.open(tbCladeSNPsFile)  
-    ranked = getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades)
+    tbCladeSNPs = tabix.open(tbCladeSNPsFile)
+    uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
+    uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
+    ranked = getRankedSolutionsScratch(uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
     if "all" in params:
         result = []
         for r in ranked:  
             clade = r[1]
-            result.append(decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs))
+            result.append(decorateJSONObject(params, clade, uniqPositives, uniqNegatives, tbCladeSNPs))
         return result
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
-            return {decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs)}
+            return {decorateJSONObject(params, clade, uniqPositives, uniqNegatives, tbCladeSNPs)}
         else:
             return {"clade": "unable to determine"}        
 
