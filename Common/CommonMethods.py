@@ -335,7 +335,7 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
-            return {decorateJSONObject(params, clade, uniqPositives, uniqNegatives, tbCladeSNPs)}
+            return decorateJSONObject(params, clade, uniqPositives, uniqNegatives, tbCladeSNPs)
         else:
             return {"clade": "unable to determine"}        
 
