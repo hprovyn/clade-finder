@@ -37,11 +37,10 @@ def replaceAsNecessary(snp):
 
 def parseSNPsString(snpsString):
     thesnps = set([])
-    for snps in snpsString.split(", "):
-        for snp in snps.split("/"):
-            replaced = replaceAsNecessary(snp)
-            if replaced != "":
-                thesnps.add(replaced)
+    for snp in snpsString.split(", "):        
+        replaced = replaceAsNecessary(snp)
+        if replaced != "":
+            thesnps.add(replaced)
     return thesnps
             
 def recurseTreeJson(node):
@@ -71,7 +70,11 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
     with open(SNPcladeFilePath,  "w") as w:
         for clade in snps:
             for snp in snps[clade]:
-                w.write("\t".join([snp.replace(".","_"), "1", "1", clade, "."]) + "\n")                
+                snp_replaced_dot = snp.replace(".","_")
+                w.write("\t".join([snp_replaced_dot, "1", "1", clade, "."]) + "\n")
+                if "/" in snp:
+                    for same_name_snp in snp.split("/"):
+                        w.write("\t".join([same_name_snp.replace(".","_"), "2", "2", snp_replaced_dot, "."]) + "\n")
     w.close()    
             
 parseTreeJSON(treeFile)

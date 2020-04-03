@@ -51,6 +51,20 @@ def getChildrenTabix(clade, tb):
     except:
         return []
     
+def getUniqueSNPTabix(snp, tb):
+    try:
+        uniqueSNPResults = tb.querys(snp + ":2-2")
+        for uniqueSNPResult in uniqueSNPResults:
+            return uniqueSNPResult[3]
+    except:
+        return snp
+    
+def getUniqueSNPsetTabix(snps, tb):
+    uniqueSNPs = set([])
+    for snp in snps:
+        uniqueSNPs.add(getUniqueSNPTabix(snp, tb))
+    return uniqueSNPs
+    
 def recurseToRootAddParents(clade, hier, tb):
     parent = getParentTabix(clade, tb)
     if parent != None:
@@ -154,7 +168,7 @@ def getWarningsConf(conflicts):
     return messages
 
 from operator import itemgetter
-
+    
 def getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs):
     solutions = []
     recurseDownTree(positives, hierarchy, childMap, cladeSNPs, solutions)
@@ -282,12 +296,14 @@ def getPanels(snpPanelConfigFile):
 
 def getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades):
     hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
+    uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
+    uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     print(hierarchy)
     childMap = createChildMap(hierarchy)
     print(childMap)
     cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
     print(cladeSNPs)
-    b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
+    b = getRankedSolutions(uniqPositives, uniqNegatives, hierarchy, childMap, cladeSNPs)
     return b
 
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
@@ -344,12 +360,14 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)    
     hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
+    uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
+    uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     print(hierarchy)
     childMap = createChildMap(hierarchy)
     print(childMap)
     cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
     print(cladeSNPs)
-    b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
+    b = getRankedSolutions(uniqPositives, uniqNegatives, hierarchy, childMap, cladeSNPs)
     html = "unable to determine clade"
     if len(b) > 0:
         html = "<table><tr><td>Clade</td><td>Score</td></tr>"
@@ -370,7 +388,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
                 if isUpstream(res[1],panel,hierarchy):
                     panelRootsUpstreamPrediction.append(panel)
                 else:
-                    if isDownstreamPredictionAndNotBelowNegative(b[0][1],panel,negatives,panelRootHierarchy,tbCladeSNPs):
+                    if isDownstreamPredictionAndNotBelowNegative(b[0][1],panel,uniqNegatives,panelRootHierarchy,tbCladeSNPs):
                         panelsDownstreamPrediction.append(panel)
         def sortPanelRootsUpstream(panels, clade, hierarchy):
             thesorted = []
@@ -398,7 +416,7 @@ def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelCo
                 html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Subject has not tested positive for root SNP. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel.</i><br><br>"
 
             #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
-        html = html + "<br><br>" + createSNPStatusHTML(b[0][1], positives, negatives, tbCladeSNPs)
+        html = html + "<br><br>" + createSNPStatusHTML(b[0][1], uniqPositives, uniqNegatives, tbCladeSNPs)
     print(html)
 
 def isUpstream(predictedClade, panelRoot, hierarchyForClade):
