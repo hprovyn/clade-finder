@@ -55,7 +55,6 @@ def getUniqueSNPTabix(snp, tb):
     try:
         uniqueSNPResults = tb.querys(snp + ":2-2")
         for uniqueSNPResult in uniqueSNPResults:
-            print (str(uniqueSNPResult[3]))
             return uniqueSNPResult[3]
     except:
         return snp
@@ -321,8 +320,7 @@ def decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs):
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
-    print(", ".join(positives))
-    print(", ".join(negatives))
+    print(getUniqueSNPTabix(positives[0]))
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     
