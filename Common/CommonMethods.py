@@ -320,7 +320,7 @@ def decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs):
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
-    print(getUniqueSNPTabix(list(positives)[0]))
+    print(getUniqueSNPTabix(list(positives)[0], tbSNPclades))
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     
