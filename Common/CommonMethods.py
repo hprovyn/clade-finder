@@ -398,7 +398,7 @@ def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, 
             if panel == res[1]:
                 panelsEqualToPrediction.append(panel)
             else:
-                if isUpstream(res[1],panel,hierarchy):
+                if isUpstream(obj[0]["clade"],panel,hierarchy):
                     panelRootsUpstreamPrediction.append(panel)
                 else:
                     if isDownstreamPredictionAndNotBelowNegative(obj[0]["clade"],panel,uniqNegatives,panelRootHierarchy,tbCladeSNPs):
