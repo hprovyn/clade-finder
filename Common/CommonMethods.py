@@ -57,7 +57,7 @@ def getUniqueSNPTabix(snp, tb):
         uniqueSNPResults = tb.querys(snp + ":2-2")
         for uniqueSNPResult in uniqueSNPResults:
             if uniqueSNPResult is not None and len(uniqueSNPResult) > 3 and uniqueSNPResult[3] is not None:
-                returnvalue = uniqueSNPResult
+                returnvalue = uniqueSNPResult[3]
     finally:
         return returnvalue
     
