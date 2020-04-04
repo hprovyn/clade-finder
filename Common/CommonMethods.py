@@ -395,7 +395,7 @@ def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, 
         hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
         
         for panel in panels:
-            if panel == res[1]:
+            if panel == obj[0]["clade"]:
                 panelsEqualToPrediction.append(panel)
             else:
                 if isUpstream(obj[0]["clade"],panel,hierarchy):
