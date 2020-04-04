@@ -343,8 +343,8 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
         return result
     else:
         if len(ranked) > 0:
-            clade = ranked[0][1]
-            score = ranked[0][2]
+            clade = ranked[-1][1]
+            score = ranked[-1][2]
             return decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs)
         else:
             return {"clade": "unable to determine"}        
@@ -394,14 +394,15 @@ def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, 
     
         hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
         
+        bestClade = obj[-1]["clade"]
         for panel in panels:
-            if panel == obj[0]["clade"]:
+            if panel == bestClade:
                 panelsEqualToPrediction.append(panel)
             else:
-                if isUpstream(obj[0]["clade"],panel,hierarchy):
+                if isUpstream(bestClade,panel,hierarchy):
                     panelRootsUpstreamPrediction.append(panel)
                 else:
-                    if isDownstreamPredictionAndNotBelowNegative(obj[0]["clade"],panel,uniqNegatives,panelRootHierarchy,tbCladeSNPs):
+                    if isDownstreamPredictionAndNotBelowNegative(bestClade,panel,uniqNegatives,panelRootHierarchy,tbCladeSNPs):
                         panelsDownstreamPrediction.append(panel)
         def sortPanelRootsUpstream(panels, clade, hierarchy):
             thesorted = []
@@ -418,18 +419,18 @@ def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, 
         count = 0
         for recommendedPanel in panelsEqualToPrediction:
             count = count + 1
-            html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + obj[0]["clade"] + " is the panel root. This panel is applicable and will definitely provide higher resolution.</i><br><br>"
+            html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + bestClade + " is the panel root. This panel is applicable and will definitely provide higher resolution.</i><br><br>"
         
         if count == 0:
-            for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, obj[0]["clade"], hierarchy):
+            for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, bestClade, hierarchy):
                 count = count + 1
-                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + obj[0]["clade"] + " is downstream of the panel root. This panel is applicable and may provide higher resolution to the extent that it tests subclades below " + obj[0]["clade"] + ".</i><br><br>"
+                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + bestClade + " is downstream of the panel root. This panel is applicable and may provide higher resolution to the extent that it tests subclades below " + bestClade + ".</i><br><br>"
             for recommendedPanel in panelsDownstreamPrediction:
                 count = count + 1
                 html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Subject has not tested positive for root SNP. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel.</i><br><br>"
 
             #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
-        html = html + "<br><br>" + createSNPStatusHTML(obj[0]["clade"], uniqPositives, uniqNegatives, tbCladeSNPs)
+        html = html + "<br><br>" + createSNPStatusHTML(bestClade, uniqPositives, uniqNegatives, tbCladeSNPs)
     print(html)
 
     
