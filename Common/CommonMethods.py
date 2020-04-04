@@ -310,13 +310,15 @@ def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
 
-def decorateJSONObject(params, clade, positives, negatives, tbCladeSNPs):
+def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs):
     theobj = {}
     theobj["clade"] = clade
     if "downstream" in params:
         theobj["downstream"] = getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs)
     if "phyloeq" in params:
         theobj["phyloeq"] = getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs)
+    if "score" in params:
+        theobj["score"] = score
     return theobj
     
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
@@ -336,12 +338,14 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
         result = []
         for r in ranked:  
             clade = r[1]
-            result.append(decorateJSONObject(params, clade, uniqPositives, uniqNegatives, tbCladeSNPs))
+            score = r[2]
+            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs))
         return result
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
-            return decorateJSONObject(params, clade, uniqPositives, uniqNegatives, tbCladeSNPs)
+            score = ranked[0][2]
+            return decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs)
         else:
             return {"clade": "unable to determine"}        
 
@@ -365,6 +369,69 @@ def getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs):
     for child in children:
         snpStatus[child] = getCladeSNPStatusJSONObject(child, positives, negatives, tbCladeSNPs)
     return snpStatus
+
+def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
+    obj = getJSONObject("all,phyloeq,downstream,score", positives, negatives, tbCladeSNPsFile, tbSNPcladesFile)
+    if len(obj) > 0:
+        html = "<table><tr><td>Clade</td><td>Score</td></tr>"
+        for res in obj:
+            if "clade" in res:
+                if res["clade"] != "unable to determine":
+                    html = html + '<tr><td><a href="https://www.yfull.com/tree/' + res["clade"] + '">' + res["clade"] + "</a></td><td>" + str(round(res["score"],3)) + "</td></tr>"
+                else:
+                    html = html + '<tr><td>unable to determine</td><td></td></tr>'
+        html = html + "</table>"
+        panels = getPanels(snpPanelConfigFile)
+        tbCladeSNPs = tabix.open(tbCladeSNPsFile)
+        tbSNPclades = tabix.open(tbSNPcladesFile)
+        panelRootHierarchy = createMiminalTreePanelRoots(panels, tbCladeSNPs)
+        panelsDownstreamPrediction = []
+        panelRootsUpstreamPrediction = []
+        panelsEqualToPrediction = []
+        
+        uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
+        uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
+    
+        hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
+        
+        for panel in panels:
+            if panel == res[1]:
+                panelsEqualToPrediction.append(panel)
+            else:
+                if isUpstream(res[1],panel,hierarchy):
+                    panelRootsUpstreamPrediction.append(panel)
+                else:
+                    if isDownstreamPredictionAndNotBelowNegative(obj[0]["clade"],panel,uniqNegatives,panelRootHierarchy,tbCladeSNPs):
+                        panelsDownstreamPrediction.append(panel)
+        def sortPanelRootsUpstream(panels, clade, hierarchy):
+            thesorted = []
+            for cld in getTotalSequence(clade, hierarchy):
+                for panel in panels:
+                    if panel == cld:
+                        thesorted.append(panel)
+            if len(thesorted) == 0:
+                return []
+            else:
+                return [thesorted[0]]
+                
+        html = html + "<br><br><b>Recommended Panels</b><br><br>"
+        count = 0
+        for recommendedPanel in panelsEqualToPrediction:
+            count = count + 1
+            html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + obj[0]["clade"] + " is the panel root. This panel is applicable and will definitely provide higher resolution.</i><br><br>"
+        
+        if count == 0:
+            for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, obj[0]["clade"], hierarchy):
+                count = count + 1
+                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + obj[0]["clade"] + " is downstream of the panel root. This panel is applicable and may provide higher resolution to the extent that it tests subclades below " + obj[0]["clade"] + ".</i><br><br>"
+            for recommendedPanel in panelsDownstreamPrediction:
+                count = count + 1
+                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Subject has not tested positive for root SNP. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel.</i><br><br>"
+
+            #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
+        html = html + "<br><br>" + createSNPStatusHTML(obj[0]["clade"], uniqPositives, uniqNegatives, tbCladeSNPs)
+    print(html)
+
     
 def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)

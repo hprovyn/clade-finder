@@ -35,7 +35,7 @@ if len(sys.argv) > 4:
 #print(", ".join(getSNPClades("M12")))
 #print(", ".join(getSNPClades("USP9YPLUS3636")))
 
-CommonMethods.findClade(positives, negatives, tbCladeSNPFile, tbSNPcladeFile, snpPanelConfigFile)
+CommonMethods.findCladeRefactored(positives, negatives, tbCladeSNPFile, tbSNPcladeFile, snpPanelConfigFile)
         
 #hier = createMinimalTree(["PH1080","USP9YPLUS3636","Z1043"])
 #print(", ".join(list(hier.keys())))
