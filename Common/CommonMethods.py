@@ -347,7 +347,7 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
             score = ranked[-1][2]
             return decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs)
         else:
-            return {"clade": "unable to determine"}        
+            return {"error": "unable to determine clade"}        
 
 def getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs):
     status = {}
