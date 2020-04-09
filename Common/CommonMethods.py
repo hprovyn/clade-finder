@@ -326,7 +326,6 @@ def getJSONForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPc
 def getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
-    print(getUniqueSNPTabix(list(positives)[0], tbSNPclades))
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     conflicting = uniqPositives.intersection(uniqNegatives)
@@ -337,12 +336,8 @@ def getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, 
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
-    print(getUniqueSNPTabix(list(positives)[0], tbSNPclades))
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
-    
-    print("positives :" + ", ".join(list(uniqPositives)))
-    print("negatives :" + ", ".join(list(uniqNegatives)))
     conflicting = uniqPositives.intersection(uniqNegatives)
     if len(conflicting) > 0:
         return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
