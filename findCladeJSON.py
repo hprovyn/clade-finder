@@ -12,7 +12,12 @@ import sys
 if len(sys.argv) > 4:
     tbCladeSNPFile = sys.argv[1]
     tbSNPcladeFile = sys.argv[2]
-    snps = sys.argv[3].split(",")
+    snpsAndOrClade = sys.argv[3].split(";")
+    if len(snpsAndOrClade) > 0:
+        clade = snpsAndOrClade[0]
+        snps = snpsAndOrClade[1].split(",")
+    else:
+        snps = snpsAndOrClade[0].split(",")
     #snpPanelConfigFile = sys.argv[4]
     params = sys.argv[4]
     positives = set([])
@@ -36,5 +41,7 @@ if len(sys.argv) > 4:
 #
 #print(", ".join(getSNPClades("M12")))
 #print(", ".join(getSNPClades("USP9YPLUS3636")))
-
-print(CommonMethods.getJSON(params, positives, negatives, tbCladeSNPFile, tbSNPcladeFile))
+if clade:
+    print(CommonMethods.getJSONForClade(params, clade, positives, negatives, tbCladeSNPFile, tbSNPcladeFile))
+else:
+    print(CommonMethods.getJSON(params, positives, negatives, tbCladeSNPFile, tbSNPcladeFile))

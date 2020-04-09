@@ -307,7 +307,6 @@ def getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades):
     return b
 
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
-    
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
 
 def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs):
@@ -320,6 +319,20 @@ def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs):
     if "score" in params:
         theobj["score"] = score
     return theobj
+
+def getJSONForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
+    return json.dumps(getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
+
+def getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
+    tbSNPclades = tabix.open(tbSNPcladesFile)
+    tbCladeSNPs = tabix.open(tbCladeSNPsFile)
+    print(getUniqueSNPTabix(list(positives)[0], tbSNPclades))
+    uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
+    uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
+    conflicting = uniqPositives.intersection(uniqNegatives)
+    if len(conflicting) > 0:
+        return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
+    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs)
     
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
