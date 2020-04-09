@@ -9,6 +9,7 @@ Created on Thu Apr  2 14:07:25 2020
 from Common import CommonMethods
 import sys
 
+clade = None
 if len(sys.argv) > 4:
     tbCladeSNPFile = sys.argv[1]
     tbSNPcladeFile = sys.argv[2]
