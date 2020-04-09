@@ -373,14 +373,16 @@ def getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs):
 
 def getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs):
     children = getChildrenTabix(clade, tbCladeSNPs)
-    snpStatus = {}
+    downstreamNodes = []
     for child in children:
-        snpStatus[child] = {}
-        snpStatus[child]["phyloeq"] = getCladeSNPStatusJSONObject(child, positives, negatives, tbCladeSNPs)
+        downstreamNode = {"clade": child}
+        
+        downstreamNode["phyloeq"] = getCladeSNPStatusJSONObject(child, positives, negatives, tbCladeSNPs)
         grandChildren = getChildrenTabix(child, tbCladeSNPs)
         if len(grandChildren) > 0:
-            snpStatus[child]["children"] = len(grandChildren)
-    return snpStatus
+            downstreamNode["children"] = len(grandChildren)
+        downstreamNodes.append(downstreamNode)
+    return downstreamNodes
 
 def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     obj = getJSONObject("all,phyloeq,downstream,score", positives, negatives, tbCladeSNPsFile, tbSNPcladesFile)
