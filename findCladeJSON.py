@@ -13,7 +13,7 @@ clade = None
 if len(sys.argv) > 4:
     tbCladeSNPFile = sys.argv[1]
     tbSNPcladeFile = sys.argv[2]
-    snpsAndOrClade = sys.argv[3].split(";")
+    snpsAndOrClade = sys.argv[3].split("--")
     if len(snpsAndOrClade) > 1:
         clade = snpsAndOrClade[0]
         snps = snpsAndOrClade[1].split(",")
