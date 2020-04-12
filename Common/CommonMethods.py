@@ -365,6 +365,7 @@ def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
 
 def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs):
     theobj = {}
+    clade = clade.replace("*","")
     theobj["clade"] = clade
     if "downstream" in params:
         theobj["downstream"] = getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs)
