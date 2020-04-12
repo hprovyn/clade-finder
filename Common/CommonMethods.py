@@ -351,8 +351,8 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
         return result
     else:
         if len(ranked) > 0:
-            clade = ranked[-1][1]
-            score = ranked[-1][2]
+            clade = ranked[0][1]
+            score = ranked[0][2]
             return decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs)
         else:
             return {"error": "unable to determine clade"}        
@@ -408,7 +408,7 @@ def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, 
     
         hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
         
-        bestClade = obj[-1]["clade"]
+        bestClade = obj[0]["clade"]
         for panel in panels:
             if panel == bestClade:
                 panelsEqualToPrediction.append(panel)
