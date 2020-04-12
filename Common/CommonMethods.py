@@ -358,13 +358,13 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
         result = []
         for r in ranked:  
             clade = r[1]
-            score = r[2]
+            score = r[4]
             result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs))
         return result
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
-            score = ranked[0][2]
+            score = ranked[0][4]
             return decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs)
         else:
             return {"error": "unable to determine clade"}        
