@@ -136,20 +136,25 @@ def getConflicts(sequence, negatives, cladeSNPs):
 import numpy as np
 def getPathScores(fullSequence, confirmed, negatives, positives, conflicts, cladeSNPs):
     scores = []
+    last = fullSequence[-1]
+    weights = 0
     for thing in fullSequence:
+        weight = len(cladeSNPs[thing])
         if thing in confirmed:
             negs = len(negatives.intersection(set(cladeSNPs[thing])))
             poses = len(positives.intersection(set(cladeSNPs[thing])))
-            toappend = 0
-            if poses + negs > 0:
-                toappend = float(poses) / (poses + negs)
-            scores.append(toappend)
+            if last == thing:
+                scores.append(1.0 * weight)
+                weights += weight
+            else:
+                scores.append(weight * (-1.0 + 2.0 * float(poses) / float(poses + negs)))
+                weights += weight
         else:
             if thing in conflicts:
-                scores.append(0)
-            else:
-                scores.append(0.5)
-    return scores
+                negs = len(negatives.intersection(set(cladeSNPs[thing])))
+                scores.append(weight * -1 * negs)
+                weights += weight
+    return np.divide(scores, weights)
 
 def isBasal(clade, negatives, positives, hierarchy, childMap, cladeSNPs):
     basal = False
@@ -189,7 +194,7 @@ def getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs):
             clade = solution[-1 - removed]
             if isBasal(clade, negatives, positives, hierarchy, childMap, cladeSNPs):
                 clade = clade + "*"
-            scoredSolutions.append([totalSequence, clade, np.average(scores), np.sum(scores), np.average(scores) * np.sum(scores), getWarningsConf(conflicts)])
+            scoredSolutions.append([totalSequence, clade, np.average(scores), np.sum(scores), getPositive(scores) * np.sum(scores), getWarningsConf(conflicts)])
             removed = removed + 1
             if scores[-1] > 0.5:
                 lastChainMoreNegThanPos = False
@@ -200,6 +205,13 @@ def getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs):
     scoredSolutions = sorted(scoredSolutions, key=itemgetter(4), reverse=True)
     
     return scoredSolutions
+
+def getPositive(scores):
+    totscore = 0
+    for score in scores:
+        if score > 0:
+            totscore += 1
+    return totscore
 
 def removeDuplicates(arr): 
 
