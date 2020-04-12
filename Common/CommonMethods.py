@@ -374,13 +374,15 @@ def getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs):
     snps = getCladeSNPs(clade, tbCladeSNPs)
     poses = set(positives).intersection(snps)
     negs = set(negatives).intersection(snps)
+    
     for snp in snps:
+        status[snp] = {}
         if snp in poses:
-            status[snp] = "+"
+            status[snp]["call"] = "+"
         elif snp in negs:
-            status[snp] = "-"
+            status[snp]["call"] = "-"
         else:
-            status[snp] = "?"
+            status[snp]["call"] = "?"
     return status
 
 def getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs):
