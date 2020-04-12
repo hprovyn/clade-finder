@@ -318,6 +318,46 @@ def getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades):
     b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
     return b
 
+import urllib.parse
+import urllib.request
+
+def getSNPProducts(snps):
+    url = "https://www.yseq.net/catalog_json.php"
+    PARAMS = {"snps": ", ".join(snps)}
+    fullurl = url + "?" + urllib.parse.urlencode(PARAMS)
+    data = urllib.request.urlopen(fullurl)
+    a = data.read().decode("ASCII")
+    snpProducts = {}
+    spls = a.split(";")
+    for spl in spls:
+        splspl = spl.split(",")
+        snpProducts[splspl[0]]=splspl[1]
+    
+    return snpProducts
+    
+def decorateSNPProducts(obj):
+    snps = []
+    for snp in obj["phyloeq"]:
+        if obj["phyloeq"][snp]["call"] == "?":
+            for samenamesnp in snp.split("/"):
+                snps.append(samenamesnp)
+    for child in obj["downstream"]:
+        for snp in obj["downstream"][child]["phyloeq"]:
+            if obj["downstream"][child]["phyloeq"][snp]["call"] == "?":
+                for samenamesnp in snp.split("/"):
+                    snps.append(samenamesnp)
+    products = getSNPProducts(snps)
+    for snp in obj["phyloeq"]:
+        for samenamesnp in snp.split("/"):
+            if samenamesnp in products:
+                obj["phyloeq"][snp]["product"] = products[samenamesnp]
+        for child in obj["downstream"]:
+            for snp in obj["downstream"][child]["phyloeq"]:
+                for samenamesnp in snp.split("/"):
+                    if samenamesnp in products:
+                        obj["downstream"][child]["phyloeq"][snp]["product"] = products[samenamesnp]
+    return obj
+    
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
 
@@ -330,7 +370,7 @@ def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs):
         theobj["phyloeq"] = getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs)
     if "score" in params:
         theobj["score"] = score
-    return theobj
+    return decorateSNPProducts(theobj)
 
 def getJSONForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     return json.dumps(getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
@@ -653,4 +693,6 @@ def getSNPpanelStats(predictedClade, panelRootClade, tbSNPclades, tbCladeSNPs):
 #def recommendPanel(prediction, positives, negatives):
 #    allpanels = {}
 #    for panel in allpanels:
+    
+
         
