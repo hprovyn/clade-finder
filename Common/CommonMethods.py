@@ -330,8 +330,9 @@ def getSNPProducts(snps):
     snpProducts = {}
     spls = a.split(";")
     for spl in spls:
-        splspl = spl.split(",")
-        snpProducts[splspl[0]]=splspl[1]
+        if spl != "":
+            splspl = spl.split(",")
+            snpProducts[splspl[0]]=splspl[1]
     
     return snpProducts
     
@@ -347,17 +348,18 @@ def decorateSNPProducts(obj):
                 if child["phyloeq"][snp]["call"] == "?":
                     for samenamesnp in snp.split("/"):
                         snps.append(samenamesnp)
-    products = getSNPProducts(snps)
-    for snp in obj["phyloeq"]:
-        for samenamesnp in snp.split("/"):
-            if samenamesnp in products:
-                obj["phyloeq"][snp]["product"] = products[samenamesnp]
-        if "downstream" in obj:
-            for child in obj["downstream"]:
-                for snp in child["phyloeq"]:
-                    for samenamesnp in snp.split("/"):
-                        if samenamesnp in products:
-                            child["phyloeq"][snp]["product"] = products[samenamesnp]
+    if len(snps) > 0:
+        products = getSNPProducts(snps)
+        for snp in obj["phyloeq"]:
+            for samenamesnp in snp.split("/"):
+                if samenamesnp in products:
+                    obj["phyloeq"][snp]["product"] = products[samenamesnp]
+            if "downstream" in obj:
+                for child in obj["downstream"]:
+                    for snp in child["phyloeq"]:
+                        for samenamesnp in snp.split("/"):
+                            if samenamesnp in products:
+                                child["phyloeq"][snp]["product"] = products[samenamesnp]
     return obj
     
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
