@@ -338,27 +338,26 @@ def getSNPProducts(snps):
 def decorateSNPProducts(obj):
     snps = []
     for snp in obj["phyloeq"]:
-        if obj["phyloeq"][snp]["call"] == "?":
+        if snp["call"] == "?":
             for samenamesnp in snp.split("/"):
                 snps.append(samenamesnp)
     if "downstream" in obj:
         for child in obj["downstream"]:
-            print(child)
-            for snp in obj["downstream"][child]["phyloeq"]:
-                if obj["downstream"][child]["phyloeq"][snp]["call"] == "?":
+            for snp in child["phyloeq"]:
+                if snp["call"] == "?":
                     for samenamesnp in snp.split("/"):
                         snps.append(samenamesnp)
     products = getSNPProducts(snps)
     for snp in obj["phyloeq"]:
         for samenamesnp in snp.split("/"):
             if samenamesnp in products:
-                obj["phyloeq"][snp]["product"] = products[samenamesnp]
+                snp["product"] = products[samenamesnp]
         if "downstream" in obj:
             for child in obj["downstream"]:
-                for snp in obj["downstream"][child]["phyloeq"]:
+                for snp in child["phyloeq"]:
                     for samenamesnp in snp.split("/"):
                         if samenamesnp in products:
-                            obj["downstream"][child]["phyloeq"][snp]["product"] = products[samenamesnp]
+                            snp["product"] = products[samenamesnp]
     return obj
     
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
