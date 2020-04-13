@@ -86,7 +86,7 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
                     marker_safe = replaceAsNecessary(splt[1]).replace(".","_")                
                     w.write("\t".join([splt[0], "1", "1", marker_safe, splt[2]]) + "\n")
                 else:
-                    print("ignored: " + splt)
+                    print("ignored: " + ",".join(splt))
         w.close()
     r.close()
         
