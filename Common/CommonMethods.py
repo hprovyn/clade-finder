@@ -7,6 +7,34 @@ Created on Fri Dec 20 13:19:15 2019
 
 import tabix
 
+def getPositionSNP(position, allele, tb):
+    try:
+        positionResults = tb.querys(position + ":1-1")
+        for snp in positionResults:
+            if snp[3] == allele:
+                return snp[2]
+    except:
+        return None
+
+def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
+    positives = []
+    tbPositionSNPs = tabix.open(tbPositionSNPsFile)
+
+    with open(twentyThreeAndMeFile, "r") as r:
+        lines = r.readlines
+        for line in lines:
+            splt = line.replace("\n","").split("\t")
+            if len(splt) > 3:
+                position = splt[2]
+                if len(splt[3]) > 1:
+                    allele = splt[3][1]
+                    posSNP = getPositionSNP(position, allele, tbPositionSNPs)
+                    if posSNP:
+                        positives.append(posSNP)
+    r.close()
+    return positives
+            
+        
 def getCladeSNPs(clade, tb):
     try:
         claderesults = tb.querys(clade + ":1-1")
