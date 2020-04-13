@@ -21,7 +21,7 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
     tbPositionSNPs = tabix.open(tbPositionSNPsFile)
 
     with open(twentyThreeAndMeFile, "r") as r:
-        lines = r.readlines
+        lines = r.readlines()
         for line in lines:
             splt = line.replace("\n","").split("\t")
             if len(splt) > 3:
