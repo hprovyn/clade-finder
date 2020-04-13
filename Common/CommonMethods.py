@@ -375,7 +375,9 @@ def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs):
         theobj["phyloeq"] = getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs)
     if "score" in params:
         theobj["score"] = score
-    return decorateSNPProducts(theobj)
+    if "products" in params:
+        theobj = decorateSNPProducts(theobj)
+    return theobj
 
 def getJSONForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     return json.dumps(getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
