@@ -82,8 +82,11 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
         with open(positionMarkersFilePath, "w") as w:
             for line in r.readlines():
                 splt = line.replace("\n","").split("\t")
-                marker_safe = replaceAsNecessary(splt[0]).replace(".","_")                
-                w.write("\t".join([splt[1], "1", "1", marker_safe, splt[2]]) + "\n")
+                if len(splt) == 3:
+                    marker_safe = replaceAsNecessary(splt[1]).replace(".","_")                
+                    w.write("\t".join([splt[0], "1", "1", marker_safe, splt[2]]) + "\n")
+                else:
+                    print("ignored: " + splt)
         w.close()
     r.close()
         
