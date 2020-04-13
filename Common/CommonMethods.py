@@ -24,6 +24,7 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
         lines = r.readlines()
         for line in lines:
             splt = line.replace("\n","").split("\t")
+            print(", ".join(splt))
             if len(splt) > 3:
                 if splt[1] == "Y":
                     position = splt[2]
