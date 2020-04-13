@@ -8,10 +8,12 @@ Created on Fri Dec 20 13:22:52 2019
 import sys
 import json
 
-if len(sys.argv) > 3:
+if len(sys.argv) > 5:
     treeFile = sys.argv[1]
-    cladeSNPFilePath = sys.argv[2]
-    SNPcladeFilePath = sys.argv[3]
+    positionMarkersTSV = sys.argv[2]
+    cladeSNPFilePath = sys.argv[3]
+    SNPcladeFilePath = sys.argv[4]
+    positionMarkersFilePath = sys.argv[5]
 else:
     treeFile = "C:\clade-finder-files\yfull.json"
     cladeSNPFilePath = "C:\clade-finder-files\cladeSNPs"
@@ -75,7 +77,16 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
                 if "/" in snp:
                     for same_name_snp in snp.split("/"):
                         w.write("\t".join([same_name_snp.replace(".","_"), "2", "2", snp_replaced_dot, "."]) + "\n")
-    w.close()    
+    w.close()
+    with open(positionMarkersTSV, "r") as r:
+        with open(positionMarkersFilePath, "w") as w:
+            for line in r.readlines():
+                splt = line.replace("\n","").split("\t")
+                marker_safe = replaceAsNecessary(splt[0]).replace(".","_")                
+                w.write("\t".join([splt[1], "1", "1", marker_safe, splt[2]]) + "\n")
+        w.close()
+    r.close()
+        
             
 parseTreeJSON(treeFile)
 createTextFile(cladeSNPFilePath, SNPcladeFilePath)
