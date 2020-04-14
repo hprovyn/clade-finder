@@ -12,6 +12,4 @@ cladeSNPs="$workingDir${pathSeparator}cladeSNPs"
 SNPclades="$workingDir${pathSeparator}SNPclades"
 positionMarkers="$workingDir${pathSeparator}positionMarkers"
 file=$1
-snps=$(python3 $findClade23AndMe_py $1 "$positionMarkers.bgz")
-params=$2
-python3 "$findCladeJSON_py" "$cladeSNPs.bgz" "$SNPclades.bgz" "$snps" "$params"
+python3 $findClade23AndMe_py $1 "$positionMarkers.bgz"
