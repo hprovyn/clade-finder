@@ -11,8 +11,10 @@ def getPositionSNP(position, allele, tb):
     try:
         positionResults = tb.querys(position + ":1-1")
         for snp in positionResults:
-            if snp[3] == allele:
-                return snp[2]
+            if snp[4] == allele:
+                return snp[3] + "+"
+            else:
+                return snp[3] + "-"
     except:
         return None
 

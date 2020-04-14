@@ -82,7 +82,7 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
         with open(positionMarkersFilePath, "w") as w:
             for line in r.readlines():
                 splt = line.replace("\n","").split("\t")
-                if len(splt) == 3:
+                if len(splt) == 3 and splt[0] != "":
                     marker_safe = replaceAsNecessary(splt[1]).replace(".","_")                
                     w.write("\t".join([splt[0], "1", "1", marker_safe, splt[2]]) + "\n")
                 else:
