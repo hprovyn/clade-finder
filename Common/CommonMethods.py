@@ -218,7 +218,8 @@ from operator import itemgetter
 def getRankedSolutionsSimple(pos_clades, positives, negatives, hierarchy, childMap, cladeSNPs):
     scoredSolutions = []
     for clade in pos_clades:
-        totalSequence = getTotalSequence(clade, hierarchy).reverse()
+        totalSequence = getTotalSequence(clade, hierarchy)
+        totalSequence.reverse()
         conflicts = getConflicts(totalSequence, negatives, cladeSNPs)
         scores = getPathScoresSimple(totalSequence, negatives, positives)
         scoredSolutions.append([totalSequence, clade, np.average(scores), np.sum(scores), np.sum(scores), getWarningsConf(conflicts)])
