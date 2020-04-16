@@ -14,7 +14,7 @@ positionMarkers="$workingDir${pathSeparator}positionMarkers"
 
 rm $workingDir${pathSeparator}*
 
-python3 "$createTabixTSV_py" "$treeFile" "$markerPositionsTSV" "$cladeSNPs" "$SNPclades" "$positionMarkers"
+python3 "$createTabixTSV_py" "$treeFile" "$markerPositionsTSV" "$cladeSNPs" "$SNPclades" "$positionMarkers" "$productsFile"
 sort "$cladeSNPs" "-k1,1" "-k2n" | "bgzip" > "$cladeSNPs.bgz"
 tabix "-s" "1" "-b" "2" "-e" "3" "$cladeSNPs.bgz"
 sort "$SNPclades" "-k1,1" "-k2n" | "bgzip" > "$SNPclades.bgz"

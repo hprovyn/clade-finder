@@ -8,12 +8,13 @@ Created on Fri Dec 20 13:22:52 2019
 import sys
 import json
 
-if len(sys.argv) > 5:
+if len(sys.argv) > 6:
     treeFile = sys.argv[1]
     positionMarkersTSV = sys.argv[2]
     cladeSNPFilePath = sys.argv[3]
     SNPcladeFilePath = sys.argv[4]
     positionMarkersFilePath = sys.argv[5]
+    productsFilePath = sys.argv[6]
 else:
     treeFile = "C:\clade-finder-files\yfull.json"
     cladeSNPFilePath = "C:\clade-finder-files\cladeSNPs"
@@ -35,7 +36,7 @@ def parseTreeJSON(fil):
 #replace minus with MINUS
 
 def replaceAsNecessary(snp):
-    return snp.replace("(","").replace(")","").replace("+","PLUS").replace("-","MINUS").replace(" ","")
+    return snp.replace("(","").replace(")","").replace("+","PLUS").replace("-","MINUS").replace(" ","").replace(".","_")
 
 def parseSNPsString(snpsString):
     thesnps = set([])
@@ -58,7 +59,7 @@ def recurseTreeJson(node):
                 snps[child["id"]] = parseSNPsString(child["snps"])
                 recurseTreeJson(child)
 
-def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
+def createTextFile(cladeSNPFilePath, SNPcladeFilePath, uniqSnpToProducts):
     with open(cladeSNPFilePath, "w") as w:
         for clade in snps:
             for snp in snps[clade]:
@@ -72,24 +73,60 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath):
     with open(SNPcladeFilePath,  "w") as w:
         for clade in snps:
             for snp in snps[clade]:
-                snp_replaced_dot = snp.replace(".","_")
-                w.write("\t".join([snp_replaced_dot, "1", "1", clade, "."]) + "\n")
+                w.write("\t".join([snp, "1", "1", clade, "."]) + "\n")
                 if "/" in snp:
                     for same_name_snp in snp.split("/"):
-                        w.write("\t".join([same_name_snp.replace(".","_"), "2", "2", snp_replaced_dot, "."]) + "\n")
+                        w.write("\t".join([same_name_snp, "2", "2", snp, "."]) + "\n")
+        for uniqSNP in uniqSnpToProducts:
+            w.write("\t".join([uniqSNP, "3", "3", uniqSnpToProducts[uniqSNP], "."]) + "\n")
     w.close()
     with open(positionMarkersTSV, "r") as r:
         with open(positionMarkersFilePath, "w") as w:
             for line in r.readlines():
                 splt = line.replace("\n","").split("\t")
                 if len(splt) == 3 and splt[0] != "":
-                    marker_safe = replaceAsNecessary(splt[1]).replace(".","_")                
+                    marker_safe = replaceAsNecessary(splt[1])             
                     w.write("\t".join([splt[0], "1", "1", marker_safe, splt[2]]) + "\n")
                 else:
                     print("ignored: " + ",".join(splt))
         w.close()
     r.close()
         
-            
+
+def getMappingOfSamenameSNPtoUniq():
+    
+    uniqsnps = set([])
+    for clade in snps:
+        for snp in snps[clade]:
+            uniqsnps.add(snp)
+    samenameSNPToUniqSNP = {}
+    for snp in uniqsnps:
+        if "/" in snp:
+            samenamesnps = snp.split("/")
+            for samenamesnp in samenamesnps:
+                samenameSNPToUniqSNP[samenamesnp] = snp
+    
+    return samenameSNPToUniqSNP
+
+def getUniqSNPtoProducts(productsFilePath):
+    snpToProducts = {}
+    with open(productsFilePath, "r") as r:
+        for line in r.readlines():
+            splt = line.replace("\n","").split("\t")
+            if len(splt) == 2:
+                snp = replaceAsNecessary(splt[0])
+                snpToProducts[snp] = splt[1]
+    r.close()
+    uniqSNPtoProducts = {}
+    samenameSNPtoUniqSNP = getMappingOfSamenameSNPtoUniq()
+    for snp in snpToProducts:
+        if snp in samenameSNPtoUniqSNP:
+            uniqSNPtoProducts[samenameSNPtoUniqSNP[snp]] = snpToProducts[snp]
+        else:
+            uniqSNPtoProducts[snp] = snpToProducts[snp]
+    return uniqSNPtoProducts
+
+           
 parseTreeJSON(treeFile)
-createTextFile(cladeSNPFilePath, SNPcladeFilePath)
+uniqSnpToProducts = getUniqSNPtoProducts(productsFilePath)
+createTextFile(cladeSNPFilePath, SNPcladeFilePath, uniqSnpToProducts)
