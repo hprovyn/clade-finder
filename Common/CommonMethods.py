@@ -192,7 +192,7 @@ def getPathScoresSimple(fullSequence, negatives, positives, cladeSNPs):
     for thing in fullSequence[:-1]:
         thescore = len(positives.intersection(set(cladeSNPs[thing]))) - len(negatives.intersection(set(cladeSNPs[thing])))
         scores.append(thescore)
-    scores.append(len(positives.intersection(set(cladeSNPs[fullSequence[1]]))))
+    scores.append(len(positives.intersection(set(cladeSNPs[fullSequence[-1]]))))
     return scores
             
 def isBasal(clade, negatives, positives, hierarchy, childMap, cladeSNPs):
