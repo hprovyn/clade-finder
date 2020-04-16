@@ -122,7 +122,7 @@ def createMinimalTree(positives, tbSNPclades, tbCladeSNPs):
     hier = {}
     for clade in clades:
         recurseToRootAddParents(clade, hier, tbCladeSNPs)
-    return hier
+    return hier, clades
 
 def createMiminalTreePanelRoots(panelRoots, tbCladeSNPs):
     hier = {}
@@ -186,7 +186,15 @@ def getPathScores(fullSequence, confirmed, negatives, positives, conflicts, clad
                 scores.append(weight * -1 * negs)
                 weights += weight
     return np.divide(scores, weights)
-
+                                                      
+def getPathScoresSimple(fullSequence, negatives, positives, cladeSNPs):
+    scores = []
+    for thing in fullSequence[:-1]:
+        thescore = len(positives.intersection(set(cladeSNPs[thing]))) - len(negatives.intersection(set(cladeSNPs[thing])))
+        scores.append(thescore)
+    scores.append(len(positives.intersection(set(cladeSNPs[fullSequence[1]]))))
+    return scores
+            
 def isBasal(clade, negatives, positives, hierarchy, childMap, cladeSNPs):
     basal = False
     children = getChildren(clade, childMap)
@@ -206,6 +214,15 @@ def getWarningsConf(conflicts):
     return messages
 
 from operator import itemgetter
+
+def getRankedSolutionsSimple(pos_clades, positives, negatives, hierarchy, childMap, cladeSNPs):
+    scoredSolutions = []
+    for clade in pos_clades:
+        totalSequence = getTotalSequence(clade, hierarchy).reverse()
+        conflicts = getConflicts(totalSequence, negatives, cladeSNPs)
+        scores = getPathScoresSimple(totalSequence, negatives, positives)
+        scoredSolutions.append([totalSequence, clade, np.average(scores), np.sum(scores), np.sum(scores), getWarningsConf(conflicts)])
+    return scoredSolutions
     
 def getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs):
     solutions = []
@@ -226,6 +243,7 @@ def getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs):
             if isBasal(clade, negatives, positives, hierarchy, childMap, cladeSNPs):
                 clade = clade + "*"
             scoredSolutions.append([totalSequence, clade, np.average(scores), np.sum(scores), getPositive(scores) * np.sum(scores), getWarningsConf(conflicts)])
+            
             removed = removed + 1
             if scores[-1] > 0.5:
                 lastChainMoreNegThanPos = False
@@ -340,13 +358,13 @@ def getPanels(snpPanelConfigFile):
     return yfullCladePanels
 
 def getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades):
-    hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
+    (hierarchy, pos_clades) = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
     print(hierarchy)
     childMap = createChildMap(hierarchy)
     print(childMap)
     cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
     print(cladeSNPs)
-    b = getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs)
+    b = getRankedSolutionsSimple(pos_clades, positives, negatives, hierarchy, childMap, cladeSNPs)
     return b
 
 import urllib.parse
@@ -428,6 +446,8 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
+    if len(uniqPositives) == 0:
+        return {"error": "unable to determine clade due to no positive SNPs"}
     conflicting = uniqPositives.intersection(uniqNegatives)
     if len(conflicting) > 0:
         return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
@@ -498,7 +518,7 @@ def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, 
         uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
         uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     
-        hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
+        (hierarchy, _) = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
         
         bestClade = obj[0]["clade"]
         for panel in panels:
@@ -537,70 +557,6 @@ def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, 
 
             #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
         html = html + "<br><br>" + createSNPStatusHTML(bestClade, uniqPositives, uniqNegatives, tbCladeSNPs)
-    print(html)
-
-    
-def findClade(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
-    tbSNPclades = tabix.open(tbSNPcladesFile)
-    tbCladeSNPs = tabix.open(tbCladeSNPsFile)    
-    hierarchy = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
-    uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
-    uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
-    print(hierarchy)
-    childMap = createChildMap(hierarchy)
-    print(childMap)
-    cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
-    print(cladeSNPs)
-    b = getRankedSolutions(uniqPositives, uniqNegatives, hierarchy, childMap, cladeSNPs)
-    html = "unable to determine clade"
-    if len(b) > 0:
-        html = "<table><tr><td>Clade</td><td>Score</td></tr>"
-        for res in b:
-            html = html + '<tr><td><a href="https://www.yfull.com/tree/' + res[1] + '">' + res[1] + "</a></td><td>" + str(round(res[2],3)) + "</td></tr>"
-        html = html + "</table>"
-        panels = getPanels(snpPanelConfigFile)
-        panelRootHierarchy = createMiminalTreePanelRoots(panels, tbCladeSNPs)
-        panelsDownstreamPrediction = []
-        panelRootsUpstreamPrediction = []
-        panelsEqualToPrediction = []
-        
-        
-        for panel in panels:
-            if panel == res[1]:
-                panelsEqualToPrediction.append(panel)
-            else:
-                if isUpstream(res[1],panel,hierarchy):
-                    panelRootsUpstreamPrediction.append(panel)
-                else:
-                    if isDownstreamPredictionAndNotBelowNegative(b[0][1],panel,uniqNegatives,panelRootHierarchy,tbCladeSNPs):
-                        panelsDownstreamPrediction.append(panel)
-        def sortPanelRootsUpstream(panels, clade, hierarchy):
-            thesorted = []
-            for cld in getTotalSequence(clade, hierarchy):
-                for panel in panels:
-                    if panel == cld:
-                        thesorted.append(panel)
-            if len(thesorted) == 0:
-                return []
-            else:
-                return [thesorted[0]]
-                
-        html = html + "<br><br><b>Recommended Panels</b><br><br>"
-        count = 0
-        for recommendedPanel in panelsEqualToPrediction:
-            count = count + 1
-            html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + res[1] + " is the panel root. This panel is applicable and will definitely provide higher resolution.</i><br><br>"
-        
-        if count == 0:
-            for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, res[1], hierarchy):
-                count = count + 1
-                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + res[1] + " is downstream of the panel root. This panel is applicable and may provide higher resolution to the extent that it tests subclades below " + res[1] + ".</i><br><br>"
-            for recommendedPanel in panelsDownstreamPrediction:
-                count = count + 1
-                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Subject has not tested positive for root SNP. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel.</i><br><br>"
-
-            #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
-        html = html + "<br><br>" + createSNPStatusHTML(b[0][1], uniqPositives, uniqNegatives, tbCladeSNPs)
     print(html)
 
 def isUpstream(predictedClade, panelRoot, hierarchyForClade):
