@@ -39,9 +39,10 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                     position = splt[2]
                     if len(splt[3]) > 0:
                         allele = splt[3][0]
-                        posSNP = getPositionSNP(position, allele, tbPositionSNPs)
-                        if posSNP:
-                            positives.append(posSNP)
+                        if allele != "-":
+                            posSNP = getPositionSNP(position, allele, tbPositionSNPs)
+                            if posSNP:
+                                positives.append(posSNP)
     r.close()
     return positives
             
