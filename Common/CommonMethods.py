@@ -223,6 +223,9 @@ def getRankedSolutionsSimple(pos_clades, positives, negatives, hierarchy, childM
         conflicts = getConflicts(totalSequence, negatives, cladeSNPs)
         scores = getPathScoresSimple(totalSequence, negatives, positives, cladeSNPs)
         scoredSolutions.append([totalSequence, clade, np.average(scores), np.sum(scores), np.sum(scores), getWarningsConf(conflicts)])
+        
+    scoredSolutions = sorted(scoredSolutions, key=itemgetter(4), reverse=True)
+
     return scoredSolutions
     
 def getRankedSolutions(positives, negatives, hierarchy, childMap, cladeSNPs):
