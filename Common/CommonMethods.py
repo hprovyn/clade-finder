@@ -7,6 +7,14 @@ Created on Fri Dec 20 13:19:15 2019
 
 import tabix
 
+def getProductTabix(snp, tb):
+    try:
+        productResults = tb.querys(snp + ":3-3")
+        for snp in productResults:
+            return snp[3]
+    except:
+        return None
+
 def getPositionSNP(position, allele, tb):
     try:
         positionResults = tb.querys(position + ":1-1")
@@ -388,37 +396,41 @@ def getSNPProducts(snps):
             snpProducts[splspl[0]]=splspl[1]
     
     return snpProducts
+
+def getSNPProductsTabix(snps, tbSNPClades):
+    snpToProducts = {}
+    for snp in snps:
+        product = getProductTabix(snp, tbSNPClades)
+        if product:
+            snpToProducts[snp] = product
+    return snpToProducts
     
-def decorateSNPProducts(obj):
+def decorateSNPProducts(obj, tbSNPclades):
     snps = []
     for snp in obj["phyloeq"]:
-        if obj["phyloeq"][snp]["call"] == "?":
-            for samenamesnp in snp.split("/"):
-                snps.append(samenamesnp)
+        if obj["phyloeq"][snp]["call"] == "?":            
+            snps.append(snp)
     if "downstream" in obj:
         for child in obj["downstream"]:
             for snp in child["phyloeq"]:
                 if child["phyloeq"][snp]["call"] == "?":
-                    for samenamesnp in snp.split("/"):
-                        snps.append(samenamesnp)
+                    snps.append(snp)
     if len(snps) > 0:
-        products = getSNPProducts(snps)
+        products = getSNPProductsTabix(snps, tbSNPclades)
         for snp in obj["phyloeq"]:
-            for samenamesnp in snp.split("/"):
-                if samenamesnp in products:
-                    obj["phyloeq"][snp]["product"] = products[samenamesnp]
+            if snp in products:
+                obj["phyloeq"][snp]["product"] = products[snp]
             if "downstream" in obj:
                 for child in obj["downstream"]:
-                    for snp in child["phyloeq"]:
-                        for samenamesnp in snp.split("/"):
-                            if samenamesnp in products:
-                                child["phyloeq"][snp]["product"] = products[samenamesnp]
+                    for snp in child["phyloeq"]:                        
+                        if snp in products:
+                            child["phyloeq"][snp]["product"] = products[snp]
     return obj
     
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
 
-def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs):
+def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades):
     theobj = {}
     clade = clade.replace("*","")
     theobj["clade"] = clade
@@ -429,7 +441,7 @@ def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs):
     if "score" in params:
         theobj["score"] = score
     if "products" in params:
-        theobj = decorateSNPProducts(theobj)
+        theobj = decorateSNPProducts(theobj, tbSNPClades)
     return theobj
 
 def getJSONForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
@@ -443,7 +455,7 @@ def getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, 
     conflicting = uniqPositives.intersection(uniqNegatives)
     if len(conflicting) > 0:
         return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
-    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs)
+    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
     
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
@@ -461,13 +473,13 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
         for r in ranked:  
             clade = r[1]
             score = r[4]
-            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs))
+            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades))
         return result
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
             score = ranked[0][4]
-            return decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs)
+            return decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
         else:
             return {"error": "unable to determine clade"}        
 
