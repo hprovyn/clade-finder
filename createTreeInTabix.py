@@ -36,7 +36,7 @@ def parseTreeJSON(fil):
 #replace minus with MINUS
 
 def replaceAsNecessary(snp):
-    return snp.replace("(","").replace(")","").replace("+","PLUS").replace("-","MINUS").replace(" ","").replace(".","_")
+    return snp.replace("(","_L_PAREN_").replace(")","_R_PAREN_").replace("+","_PLUS_").replace("-","_MINUS_").replace(" ","").replace(".","_DOT_")
 
 def parseSNPsString(snpsString):
     thesnps = set([])

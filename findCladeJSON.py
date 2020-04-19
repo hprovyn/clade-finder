@@ -21,16 +21,8 @@ if len(sys.argv) > 4:
         snps = snpsAndOrClade[0].split(",")
     #snpPanelConfigFile = sys.argv[4]
     params = sys.argv[4]
-    positives = set([])
-    negatives = set([])
-    for snp in snps:
-        stripped = snp.strip()
-        if stripped != "":
-            if stripped[-1] == "+":
-                positives.add(stripped[0:-1])
-            else:
-                if stripped[-1] == "-":
-                    negatives.add(stripped[0:-1])
+    
+    (positives, negatives) = CommonMethods.getEncodedPositivesNegatives(snps)
  
 #tbcladeSNP = tabix.open(cladeSNPFilePath)
 #

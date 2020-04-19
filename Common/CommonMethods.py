@@ -7,6 +7,29 @@ Created on Fri Dec 20 13:19:15 2019
 
 import tabix
 
+def encodeTabix(snp):
+    return snp.replace("(","_LPAREN_").replace(")","_R_PAREN_").replace("+","_PLUS_").replace("-","_MINUS_").replace(" ","").replace(".","_DOT_")
+
+def decodeTabix(snp):
+    return snp.replace("_LPAREN_","(").replace("_R_PAREN_", ")").replace("_PLUS_","+").replace("_MINUS_","-").replace("_DOT_", ".")
+
+def getEncodedPositivesNegatives(snps):    
+    positives = set([])
+    negatives = set([])
+    for snp in snps:
+        stripped = snp.strip()
+        if stripped != "":
+            if stripped[-1] == "+":
+                thepos = stripped[0:-1]
+                encoded = encodeTabix(thepos)
+                positives.add(encoded)
+            else:
+                if stripped[-1] == "-":
+                    theneg = stripped[0:-1]
+                    encoded = encodeTabix(theneg)
+                    negatives.add(encoded)
+    return positives, negatives
+
 def getProductTabix(snp, tb):
     try:
         productResults = tb.querys(snp + ":3-3")
