@@ -523,7 +523,7 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
             clade = ranked[0][1]
             score = ranked[0][4]
             decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
-            if len(ranked) > 1 and "score" in params > 1:
+            if len(ranked) > 1 and "score" in params:
                 clade = ranked[1][1]
                 score = ranked[1][4]
                 decorated["nextPrediction"] = {"clade": clade, "score": score}
