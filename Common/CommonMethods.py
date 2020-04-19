@@ -8,10 +8,10 @@ Created on Fri Dec 20 13:19:15 2019
 import tabix
 
 def encodeTabix(snp):
-    return snp.replace("(","_LPAREN_").replace(")","_R_PAREN_").replace("+","_PLUS_").replace("-","_MINUS_").replace(" ","").replace(".","_DOT_")
+    return snp.replace("(","_L_PAREN_").replace(")","_R_PAREN_").replace("+","_PLUS_").replace("-","_MINUS_").replace(" ","").replace(".","_DOT_")
 
 def decodeTabix(snp):
-    return snp.replace("_LPAREN_","(").replace("_R_PAREN_", ")").replace("_PLUS_","+").replace("_MINUS_","-").replace("_DOT_", ".")
+    return snp.replace("_L_PAREN_","(").replace("_R_PAREN_", ")").replace("_PLUS_","+").replace("_MINUS_","-").replace("_DOT_", ".")
 
 def getEncodedPositivesNegatives(snps):    
     positives = set([])
@@ -428,7 +428,24 @@ def getSNPProductsTabix(snps, tbSNPClades):
         if product:
             snpToProducts[snp] = product
     return snpToProducts
-    
+
+def decodeTabixSNPs(obj):
+    obj = decodeTabixSNPsThisLevel(obj)
+    if "downstream" in obj:
+        decodedChildren = []
+        for child in obj["downstream"]:
+            decodedChildren.append(decodeTabixSNPsThisLevel(child))
+        obj["downstream"] = decodedChildren
+    return obj
+            
+def decodeTabixSNPsThisLevel(obj):
+    for encoded in obj["phyloeq"]:
+        decoded = decodeTabix(encoded)
+        if decoded != encoded:
+            obj["phyloeq"][decoded] = obj["phyloeq"][encoded]
+            obj["phyloeq"].pop(encoded)
+    return obj 
+
 def decorateSNPProducts(obj, tbSNPclades):
     snps = []
     for snp in obj["phyloeq"]:
@@ -466,7 +483,9 @@ def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, 
         theobj["score"] = score
     if "products" in params:
         theobj = decorateSNPProducts(theobj, tbSNPClades)
-    return theobj
+        
+    decoded = decodeTabixSNPs(theobj)
+    return decoded
 
 def getJSONForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     return json.dumps(getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
