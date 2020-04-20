@@ -38,6 +38,7 @@ def parseTreeJSON(fil):
 def replaceAsNecessary(snp):
     return snp.replace("(","_L_PAREN_").replace(")","_R_PAREN_").replace("+","_PLUS_").replace("-","_MINUS_").replace(" ","").replace(".","_DOT_")
 
+toIgnore = ["PF6234"]
 def parseSNPsString(snpsString):
     thesnps = set([])
     for snp in snpsString.split(", "):        
@@ -76,7 +77,8 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath, uniqSnpToProducts):
                 w.write("\t".join([snp, "1", "1", clade, "."]) + "\n")
                 if "/" in snp:
                     for same_name_snp in snp.split("/"):
-                        w.write("\t".join([same_name_snp, "2", "2", snp, "."]) + "\n")
+                        if same_name_snp not in toIgnore:
+                            w.write("\t".join([same_name_snp, "2", "2", snp, "."]) + "\n")
         for uniqSNP in uniqSnpToProducts:
             w.write("\t".join([uniqSNP, "3", "3", uniqSnpToProducts[uniqSNP], "."]) + "\n")
     w.close()
