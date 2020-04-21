@@ -512,9 +512,9 @@ def getPanelArray(clade, snpPanelConfigFile, tbCladeSNPs, hierarchy, uniqNegativ
     
     if count == 0:
         for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, clade, hierarchy):
-            panelArr.append({"link": panels[recommendedPanel], "text": "Predicted " + clade + " is downstream of the panel root. This panel is applicable and may provide higher resolution to the extent that it tests subclades below " + clade})
+            panelArr.append({"link": panels[recommendedPanel], "text": "Predicted " + clade + " is downstream of the panel root. This panel may be applicable if it tests subclades below " + clade + ". Please verify and check with YSEQ customer support."})
         for recommendedPanel in panelsDownstreamPrediction:
-            panelArr.append({"link": panels[recommendedPanel], "text": "This panel may be applicable. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel"})
+            panelArr.append({"link": panels[recommendedPanel], "text": "This panel may be applicable. However, absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel. Please verify and check with YSEQ customer support."})
     return panelArr
     
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
