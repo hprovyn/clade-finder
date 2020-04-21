@@ -57,12 +57,21 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
         lines = r.readlines()
         for line in lines:
             splt = line.replace("\n","").split("\t")
-            if len(splt) > 3:
+            if len(splt) == 4:
                 if splt[1] == "Y":
                     position = splt[2]
                     if len(splt[3]) > 0:
                         allele = splt[3][0]
                         if allele != "-":
+                            posSNP = getPositionSNP(position, allele, tbPositionSNPs)
+                            if posSNP:
+                                positives.append(posSNP)
+            else:
+                if len(splt) == 5:
+                    if splt[1] == "24":
+                        position = splt[2]
+                        allele = splt[3]
+                        if allele != "0" and allele != "":
                             posSNP = getPositionSNP(position, allele, tbPositionSNPs)
                             if posSNP:
                                 positives.append(posSNP)
