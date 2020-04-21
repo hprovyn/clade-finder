@@ -666,10 +666,10 @@ def findCladeRefactored(positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, 
         if count == 0:
             for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, bestClade, hierarchy):
                 count = count + 1
-                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + bestClade + " is downstream of the panel root. This panel is applicable and may provide higher resolution to the extent that it tests subclades below " + bestClade + ".</i><br><br>"
+                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Predicted " + bestClade + " is downstream of the panel root. This panel may be applicable if it tests subclades below " + bestClade + ". Please verify and check with YSEQ customer support.</i><br><br>"
             for recommendedPanel in panelsDownstreamPrediction:
                 count = count + 1
-                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Subject has not tested positive for root SNP. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel.</i><br><br>"
+                html = html + str(count) + ". " + panels[recommendedPanel] + "<br><br><i>Subject has not tested positive for any SNP in this panel, including the root. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel.</i><br><br>"
 
             #2nd Phase Development - get panel SNPs from API: html = html + "<br>" + getSNPpanelStats(b[0][1], panel, tbSNPclades, tbCladeSNPs) + "<br>"
         html = html + "<br><br>" + createSNPStatusHTML(bestClade, uniqPositives, uniqNegatives, tbCladeSNPs)
