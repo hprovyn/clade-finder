@@ -12,4 +12,4 @@ cladeSNPs="$workingDir${pathSeparator}cladeSNPs"
 SNPclades="$workingDir${pathSeparator}SNPclades"
 snps=$1
 params=$2
-python3 "$findCladeJSON_py" "$cladeSNPs.bgz" "$SNPclades.bgz" "$snps" "$params"
+python3 "$findCladeJSON_py" "$cladeSNPs.bgz" "$SNPclades.bgz" "$snps" "$params" "$snpPanelConfigPath"

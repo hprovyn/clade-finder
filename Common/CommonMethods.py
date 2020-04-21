@@ -410,7 +410,7 @@ def getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades):
     cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
     print(cladeSNPs)
     b = getRankedSolutionsSimple(pos_clades, positives, negatives, hierarchy, childMap, cladeSNPs)
-    return b
+    return b, hierarchy
 
 import urllib.parse
 import urllib.request
@@ -477,10 +477,50 @@ def decorateSNPProducts(obj, tbSNPclades):
                             child["phyloeq"][snp]["product"] = products[snp]
     return obj
     
-def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
-    return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
+def getPanelArray(clade, snpPanelConfigFile, tbCladeSNPs, hierarchy, uniqNegatives):
+    panels = getPanels(snpPanelConfigFile)
+    panelRootHierarchy = createMiminalTreePanelRoots(panels, tbCladeSNPs)
+    
+    panelsDownstreamPrediction = []
+    panelRootsUpstreamPrediction = []
+    panelsEqualToPrediction = []
+        
+    for panel in panels:
+        if panel == clade:
+            panelsEqualToPrediction.append(panel)
+        else:
+            if isUpstream(clade,panel,hierarchy):
+                panelRootsUpstreamPrediction.append(panel)
+            else:
+                if isDownstreamPredictionAndNotBelowNegative(clade,panel,uniqNegatives,panelRootHierarchy,tbCladeSNPs):
+                    panelsDownstreamPrediction.append(panel)
+    def sortPanelRootsUpstream(panels, clade, hierarchy):
+        thesorted = []
+        for cld in getTotalSequence(clade, hierarchy):
+            for panel in panels:
+                if panel == cld:
+                    thesorted.append(panel)
+        if len(thesorted) == 0:
+            return []
+        else:
+            return [thesorted[0]]
+    panelArr = []
+    count = 0
+    for recommendedPanel in panelsEqualToPrediction:
+        count = count + 1
+        panelArr.append({"link": panels[recommendedPanel], "text":"Predicted " + clade + " is the panel root. This panel is applicable and will definitely provide higher resolution."})
+    
+    if count == 0:
+        for recommendedPanel in sortPanelRootsUpstream(panelRootsUpstreamPrediction, clade, hierarchy):
+            panelArr.append({"link": panels[recommendedPanel], "text": "Predicted " + clade + " is downstream of the panel root. This panel is applicable and may provide higher resolution to the extent that it tests subclades below " + clade})
+        for recommendedPanel in panelsDownstreamPrediction:
+            panelArr.append({"link": panels[recommendedPanel], "text": "This panel may be applicable. Absent a strong STR prediction for this clade, we recommend testing the root SNP before ordering this panel"})
+    return panelArr
+    
+def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
+    return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile))
 
-def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades):
+def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades, hierarchy, snpPanelConfigFile):
     theobj = {}
     clade = clade.replace("*","")
     theobj["clade"] = clade
@@ -492,7 +532,10 @@ def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, 
         theobj["score"] = score
     if "products" in params:
         theobj = decorateSNPProducts(theobj, tbSNPClades)
-        
+    if "panels" in params and hierarchy is not None and snpPanelConfigFile is not None:
+        panels = getPanelArray(clade, snpPanelConfigFile, tbCladeSNPs, hierarchy, negatives)
+        if len(panels) > 0:
+            theobj["panels"] = panels
     decoded = decodeTabixSNPs(theobj)
     return decoded
 
@@ -507,9 +550,9 @@ def getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, 
     conflicting = uniqPositives.intersection(uniqNegatives)
     if len(conflicting) > 0:
         return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
-    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
+    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, None, None)
     
-def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
+def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
@@ -519,19 +562,19 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
     conflicting = uniqPositives.intersection(uniqNegatives)
     if len(conflicting) > 0:
         return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
-    ranked = getRankedSolutionsScratch(uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
+    (ranked, hierarchy) = getRankedSolutionsScratch(uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
     if "all" in params:
         result = []
         for r in ranked:  
             clade = r[1]
             score = r[4]
-            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades))
+            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile))
         return result
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
             score = ranked[0][4]
-            decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
+            decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile)
             if len(ranked) > 1 and "score" in params:
                 clade = ranked[1][1]
                 score = ranked[1][4]

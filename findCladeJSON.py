@@ -21,7 +21,7 @@ if len(sys.argv) > 4:
         snps = snpsAndOrClade[0].split(",")
     #snpPanelConfigFile = sys.argv[4]
     params = sys.argv[4]
-    
+    snpPanelConfigFile = sys.argv[5]
     (positives, negatives) = CommonMethods.getEncodedPositivesNegatives(snps)
  
 #tbcladeSNP = tabix.open(cladeSNPFilePath)
@@ -37,4 +37,4 @@ if len(sys.argv) > 4:
 if clade:
     print(CommonMethods.getJSONForClade(params, clade, positives, negatives, tbCladeSNPFile, tbSNPcladeFile))
 else:
-    print(CommonMethods.getJSON(params, positives, negatives, tbCladeSNPFile, tbSNPcladeFile))
+    print(CommonMethods.getJSON(params, positives, negatives, tbCladeSNPFile, tbSNPcladeFile, snpPanelConfigFile))
