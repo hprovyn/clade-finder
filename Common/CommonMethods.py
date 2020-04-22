@@ -55,11 +55,14 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
 
     with open(twentyThreeAndMeFile, "r") as r:
         lines = r.readlines()
+        xTotal = 0
+        yTotal = 0
         for line in lines:
             chomped = line.replace("\n","")
             splt = chomped.split("\t")
             if len(splt) == 4:
                 if splt[1] == "Y":
+                    yTotal = yTotal + 1
                     position = splt[2]
                     if len(splt[3]) > 0:
                         allele = splt[3][0]
@@ -67,20 +70,28 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                             posSNP = getPositionSNP(position, allele, tbPositionSNPs)
                             if posSNP:
                                 positives.append(posSNP)
+                else:
+                    if splt[1] == "X":
+                        xTotal = xTotal + 1
             else:
                 if len(splt) == 5:
                     if splt[1] == "24":
+                        yTotal = yTotal + 1
                         position = splt[2]
                         allele = splt[3]
                         if allele != "0" and allele != "":
                             posSNP = getPositionSNP(position, allele, tbPositionSNPs)
                             if posSNP:
                                 positives.append(posSNP)
+                    else:
+                        if splt[1] == "25":
+                            xTotal = xTotal + 1
                 else:
                     if len(splt) == 1:
                         splt = chomped.replace("\"","").split(",")
                         if len(splt) == 4:
                             if splt[1] == "Y":
+                                yTotal = yTotal + 1
                                 position = splt[2]
                                 if len(splt[3]) > 0:
                                     allele = splt[3][0]
@@ -88,8 +99,14 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                         posSNP = getPositionSNP(position, allele, tbPositionSNPs)
                                         if posSNP:
                                             positives.append(posSNP)
+                            else:
+                                if splt[1] == "X":
+                                    xTotal = xTotal + 1
     r.close()
-    return positives
+    if yTotal / xTotal > .1:
+        return positives
+    else:
+        return ["female"]
             
         
 def getCladeSNPs(clade, tb):
