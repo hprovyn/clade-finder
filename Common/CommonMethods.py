@@ -78,7 +78,7 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                 positives.append(posSNP)
                 else:
                     if len(splt) == 1:
-                        splt = chomped.split(",")
+                        splt = chomped.replace("\"","").split(",")
                         if len(splt) == 4:
                             if splt[1] == "Y":
                                 position = splt[2]
