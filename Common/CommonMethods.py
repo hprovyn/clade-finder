@@ -103,7 +103,7 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                 if splt[1] == "X":
                                     xTotal = xTotal + 1
     r.close()
-    if yTotal / xTotal > .1:
+    if yTotal / xTotal > .05:
         return positives
     else:
         return ["female"]
