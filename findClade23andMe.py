@@ -14,5 +14,5 @@ if len(sys.argv) > 2:
     twentyThreeAndMeFile = sys.argv[1]
     tbPositionSNPsFile = sys.argv[2]
     
-snps = CommonMethods.getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile)
-print(", ".join(snps))
+(snps, xReads, yReads) = CommonMethods.getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile)
+print(", ".join(snps) + "==" + str(xReads) + "," + str(yReads))
