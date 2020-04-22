@@ -566,8 +566,9 @@ def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, 
         panels = getPanelArray(clade, snpPanelConfigFile, tbCladeSNPs, hierarchy, negatives)
         if len(panels) > 0:
             theobj["panels"] = panels
-    decoded = decodeTabixSNPs(theobj)
-    return decoded
+    if "phyloeq" in params:
+        return decodeTabixSNPs(theobj)
+    return theobj
 
 def getJSONForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile):
     return json.dumps(getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile))
