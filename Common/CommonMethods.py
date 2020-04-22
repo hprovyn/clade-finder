@@ -108,8 +108,8 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                 if splt[1] == "X":
                                     if len(splt[3]) > 0:
                                         allele = splt[3][0]
-                                            if allele != "-":                                    
-                                                xTotal = xTotal + 1
+                                        if allele != "-":                                    
+                                            xTotal = xTotal + 1
     r.close()
     if yTotal / xTotal > .025:
         return positives
