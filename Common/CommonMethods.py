@@ -434,11 +434,11 @@ def getPanels(snpPanelConfigFile):
 
 def getRankedSolutionsScratch(positives, negatives, tbCladeSNPs, tbSNPclades):
     (hierarchy, pos_clades) = createMinimalTree(positives, tbSNPclades, tbCladeSNPs)
-    print(hierarchy)
+    #print(hierarchy)
     childMap = createChildMap(hierarchy)
-    print(childMap)
+    #print(childMap)
     cladeSNPs = createCladeSNPs(hierarchy, tbCladeSNPs)
-    print(cladeSNPs)
+    #print(cladeSNPs)
     b = getRankedSolutionsSimple(pos_clades, positives, negatives, hierarchy, childMap, cladeSNPs)
     return b, hierarchy
 
