@@ -62,11 +62,11 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
             splt = chomped.split("\t")
             if len(splt) == 4:
                 if splt[1] == "Y":
-                    yTotal = yTotal + 1
                     position = splt[2]
                     if len(splt[3]) > 0:
                         allele = splt[3][0]
                         if allele != "-":
+                            yTotal = yTotal + 1
                             posSNP = getPositionSNP(position, allele, tbPositionSNPs)
                             if posSNP:
                                 positives.append(posSNP)
@@ -75,11 +75,11 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                         xTotal = xTotal + 1
             else:
                 if len(splt) == 5:
-                    if splt[1] == "24":
-                        yTotal = yTotal + 1
+                    if splt[1] == "24":                        
                         position = splt[2]
                         allele = splt[3]
                         if allele != "0" and allele != "":
+                            yTotal = yTotal + 1
                             posSNP = getPositionSNP(position, allele, tbPositionSNPs)
                             if posSNP:
                                 positives.append(posSNP)
@@ -91,11 +91,11 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                         splt = chomped.replace("\"","").split(",")
                         if len(splt) == 4:
                             if splt[1] == "Y":
-                                yTotal = yTotal + 1
                                 position = splt[2]
                                 if len(splt[3]) > 0:
                                     allele = splt[3][0]
                                     if allele != "-":
+                                        yTotal = yTotal + 1
                                         posSNP = getPositionSNP(position, allele, tbPositionSNPs)
                                         if posSNP:
                                             positives.append(posSNP)
