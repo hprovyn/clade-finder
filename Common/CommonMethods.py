@@ -111,7 +111,7 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                         if allele != "-":                                    
                                             xTotal = xTotal + 1
     r.close()
-    if yTotal / xTotal > .025:
+    if yTotal / xTotal > .025 or yTotal > 150:
         return positives
     else:
         return ["female"]
