@@ -72,7 +72,10 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                 positives.append(posSNP)
                 else:
                     if splt[1] == "X":
-                        xTotal = xTotal + 1
+                        if len(splt[3]) > 0:
+                            allele = splt[3][0]
+                            if allele != "-":
+                                xTotal = xTotal + 1
             else:
                 if len(splt) == 5:
                     if splt[1] == "24":                        
@@ -85,7 +88,9 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                 positives.append(posSNP)
                     else:
                         if splt[1] == "25":
-                            xTotal = xTotal + 1
+                            allele = splt[3]
+                            if allele != "0" and allele != "":
+                                xTotal = xTotal + 1
                 else:
                     if len(splt) == 1:
                         splt = chomped.replace("\"","").split(",")
@@ -101,7 +106,10 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                             positives.append(posSNP)
                             else:
                                 if splt[1] == "X":
-                                    xTotal = xTotal + 1
+                                    if len(splt[3]) > 0:
+                                        allele = splt[3][0]
+                                            if allele != "-":                                    
+                                                xTotal = xTotal + 1
     r.close()
     if yTotal / xTotal > .025:
         return positives
