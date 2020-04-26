@@ -619,7 +619,10 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
                 decorated["nextPrediction"] = {"clade": clade, "score": score}
             return decorated
         else:
-            return {"error": "unable to determine clade"}        
+            if len(positives) == 1:
+                return {"error": "unable to find " + positives[0] + " on the YFull tree"}
+            else:
+                return {"error": "unable to find any of " + ", ".join(positives) + " on the YFull tree"}
 
 def getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs):
     status = {}
