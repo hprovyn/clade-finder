@@ -68,7 +68,7 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                         if allele != "-":
                             yTotal = yTotal + 1
                             posSNP = getPositionSNP(position, allele, tbPositionSNPs)
-                            if posSNP:
+                            if posSNP and posSNP != "S47+":
                                 positives.append(posSNP)
                 else:
                     if splt[1] == "X":
