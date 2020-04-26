@@ -620,7 +620,7 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
             return decorated
         else:
             if len(positives) == 1:
-                return {"error": "unable to find " + positives[0] + " on the YFull tree"}
+                return {"error": "unable to find " + list(positives)[0] + " on the YFull tree"}
             else:
                 return {"error": "unable to find any of " + ", ".join(positives) + " on the YFull tree"}
 
