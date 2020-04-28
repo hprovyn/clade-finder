@@ -9,3 +9,7 @@ Do not install pytabix using the --user paradigm. If you do, it will not be acce
 Instead, use sudo as below:
 
 sudo pip3 install pytabix
+
+#install pysam and pyvcf
+sudo apt-get install python3-pysam
+sudo apt-get install python3-pyvcf

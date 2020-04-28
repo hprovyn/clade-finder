@@ -8,13 +8,14 @@ Created on Fri Dec 20 13:22:52 2019
 import sys
 import json
 
-if len(sys.argv) > 6:
+if len(sys.argv) > 7:
     treeFile = sys.argv[1]
-    positionMarkersTSV = sys.argv[2]
-    cladeSNPFilePath = sys.argv[3]
-    SNPcladeFilePath = sys.argv[4]
-    positionMarkersFilePath = sys.argv[5]
-    productsFilePath = sys.argv[6]
+    hg19positionMarkersTSV = sys.argv[2]
+    hg38positionMarkersTSV = sys.argv[3]
+    cladeSNPFilePath = sys.argv[4]
+    SNPcladeFilePath = sys.argv[5]
+    positionMarkersFilePath = sys.argv[6]
+    productsFilePath = sys.argv[7]
 else:
     treeFile = "C:\clade-finder-files\yfull.json"
     cladeSNPFilePath = "C:\clade-finder-files\cladeSNPs"
@@ -82,8 +83,8 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath, uniqSnpToProducts):
         for uniqSNP in uniqSnpToProducts:
             w.write("\t".join([uniqSNP, "3", "3", uniqSnpToProducts[uniqSNP], "."]) + "\n")
     w.close()
-    with open(positionMarkersTSV, "r") as r:
-        with open(positionMarkersFilePath, "w") as w:
+    with open(positionMarkersFilePath, "w") as w:
+        with open(hg19positionMarkersTSV, "r") as r:
             for line in r.readlines():
                 splt = line.replace("\n","").split("\t")
                 if len(splt) == 3 and splt[0] != "":
@@ -91,8 +92,17 @@ def createTextFile(cladeSNPFilePath, SNPcladeFilePath, uniqSnpToProducts):
                     w.write("\t".join([splt[0], "1", "1", marker_safe, splt[2]]) + "\n")
                 else:
                     print("ignored: " + ",".join(splt))
-        w.close()
-    r.close()
+        r.close()
+        with open(hg38positionMarkersTSV, "r") as r:
+            for line in r.readlines():
+                splt = line.replace("\n","").split("\t")
+                if len(splt) == 3 and splt[0] != "":
+                    marker_safe = replaceAsNecessary(splt[1])             
+                    w.write("\t".join([splt[0], "2", "2", marker_safe, splt[2]]) + "\n")
+                else:
+                    print("ignored: " + ",".join(splt))
+        r.close()
+    w.close()
         
 
 def getMappingOfSamenameSNPtoUniq():
