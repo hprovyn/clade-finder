@@ -10,6 +10,6 @@ findCladeJSON_py="$pythonScriptsDir${pathSeparator}findCladeJSON.py"
 findClade23AndMe_py="$pythonScriptsDir${pathSeparator}findClade23andMe.py"
 cladeSNPs="$workingDir${pathSeparator}cladeSNPs"
 SNPclades="$workingDir${pathSeparator}SNPclades"
-positionMarkers="$workingDir${pathSeparator}positionMarkers"
+positionMarkers="$workingDir${pathSeparator}hg19positionMarkers"
 file=$1
 python3 $findClade23AndMe_py $1 "$positionMarkers.bgz"

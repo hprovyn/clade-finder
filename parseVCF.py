@@ -12,7 +12,7 @@ from Common import CommonMethods
 
 def getPositionSNP(position, allele, tb):
     try:
-        positionResults = tb.querys(position + ":2-2")
+        positionResults = tb.querys(position + ":1-1")
         for snp in positionResults:
             if snp[4] == allele:
                 return snp[3], "+"
