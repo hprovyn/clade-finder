@@ -88,19 +88,42 @@ def getSNPsBelowClade(clade, tb):
 
 def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, tbSNPcladeFile):
     #tbCladeSNPs = tabix.open(tbCladeSNPFile)
-    
-    return jsonObj
+    tbCladeSNPs = tabix.open(tbCladeSNPFile)
+    tbSNPClades = tabix.open(tbSNPcladeFile)
+    uniqPositives = CommonMethods.getUniqueSNPsetTabix(positives, tbSNPClades)
+    uniqNegatives = CommonMethods.getUniqueSNPsetTabix(negatives, tbSNPClades)
+    allowed = set(getSNPsBelowClade(jsonObj["clade"], tbCladeSNPs))
+    if "nextPrediction" in jsonObj:
+        allowed = allowed.union(getSNPsBelowClade)
+    filteredUniqPos = list(allowed.intersection(uniqPositives))    
+    filteredUniqNeg = list(allowed.intersection(uniqNegatives))
+    filteredPos = []
+    for snp in filteredUniqPos:
+        snpsplit = snp.split("/")
+        filteredPos.append(snpsplit[0])
+    filteredNeg = []
+    for snp in filteredUniqNeg:
+        snpsplit = snp.split("/")
+        filteredNeg.append(snpsplit[0])
+    return filteredPos, filteredNeg
+
+def makeStringFromPosNeg(positives, negatives):
+    output = "+, ".join(positives)
+    if len(positives) > 0:
+        output = output + "+, "
+    output = output + "-, ".join(negatives)
+    if len(negatives) > 0:
+        output = output + "-"
+    return output
 
 import time
 start_time = time.time()
 
-#(positives, negatives) = parseVCF(vcfFile, tbPositionSNPsFile)
+(positives, negatives) = parseVCF(vcfFile, tbPositionSNPsFile)
 parsed_time = time.time()
 print ('parsing vcf ' + str(parsed_time - start_time) + ' seconds')
-#jsonObj = CommonMethods.getJSON("score", positives, negatives, tbCladeSNPFile, tbSNPcladeFile, None)
+jsonObj = CommonMethods.getJSONObject("score", positives, negatives, tbCladeSNPFile, tbSNPcladeFile, None)
 found_time = time.time()
 print ('found clade in ' + str(found_time - parsed_time) + ' seconds')
-#(positives, negatives) = filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, tbSNPcladeFile)
-tb = tabix.open(tbCladeSNPFile)
-print (", ".join(getSNPsBelowClade("J-Z1043", tb)))
-print (", ".join(getSNPsBelowClade("J-PH1080", tb)))
+(positives, negatives) = filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, tbSNPcladeFile)
+print(makeStringFromPosNeg(positives, negatives))
