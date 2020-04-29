@@ -158,3 +158,4 @@ print ('filtered to top two predicted in ' + str(filtered_time - found_time) + '
 jsonObj = CommonMethods.getJSONObject("score", filteredPos, filteredPos, tbCladeSNPFile, tbSNPcladeFile, None)
 found_filter_time = time.time()
 print ('found clade filtered in ' + str(found_filter_time - filtered_time) + ' seconds')
+print(makeStringFromPosNeg(filteredPos, filteredNeg))
