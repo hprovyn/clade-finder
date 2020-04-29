@@ -74,17 +74,33 @@ def parseVCF(vcfFile, tbPositionSNPsFile):
                     record = None
     
     return positives, negatives
+def getSNPsBelowClade(clade, tb):
+    children = CommonMethods.getChildrenTabix(clade, tb)
+    thesesnps = CommonMethods.getCladeSNPs(clade, tb)
+    snps = []
+    for snp in thesesnps:
+        snps.append(snp)
+    for child in children:
+        childSNPs = getSNPsBelowClade(child, tb)
+        for childSNP in childSNPs:
+            snps.append(childSNP)
+    return snps
 
-def filterSNPsTopTwoPredictions(positives, negatives, tbCladeSNPFile, tbSNPcladeFile):
-    jsonObj = CommonMethods.getJSON("score", positives, negatives, tbCladeSNPFile, tbSNPcladeFile, None)
+def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, tbSNPcladeFile):
+    #tbCladeSNPs = tabix.open(tbCladeSNPFile)
+    
     return jsonObj
 
 import time
 start_time = time.time()
 
-(positives, negatives) = parseVCF(vcfFile, tbPositionSNPsFile)
+#(positives, negatives) = parseVCF(vcfFile, tbPositionSNPsFile)
 parsed_time = time.time()
 print ('parsing vcf ' + str(parsed_time - start_time) + ' seconds')
-print(filterSNPsTopTwoPredictions(positives, negatives, tbCladeSNPFile, tbSNPcladeFile))
+#jsonObj = CommonMethods.getJSON("score", positives, negatives, tbCladeSNPFile, tbSNPcladeFile, None)
 found_time = time.time()
 print ('found clade in ' + str(found_time - parsed_time) + ' seconds')
+#(positives, negatives) = filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, tbSNPcladeFile)
+tb = tabix.open(tbCladeSNPFile)
+print (", ".join(getSNPsBelowClade("J-Z1043", tabix)))
+print (", ".join(getSNPsBelowClade("J-PH1080", tabix)))
