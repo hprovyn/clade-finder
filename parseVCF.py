@@ -7,9 +7,25 @@ Created on Tue Apr 28 16:07:43 2020
 
 import vcf
 import sys
+import tabix
+from Common import CommonMethods
 
-if len(sys.argv) > 1:
+def getPositionSNP(position, allele, tb):
+    try:
+        positionResults = tb.querys(position + ":2-2")
+        for snp in positionResults:
+            if snp[4] == allele:
+                return snp[3], "+"
+            else:
+                return snp[3], "-"
+    except:
+        return None, None
+        
+if len(sys.argv) > 2:
     vcfFile = sys.argv[1]
+    tbPositionSNPsFile = sys.argv[2]
+    tbCladeSNPFile = sys.argv[3]
+    tbSNPcladeFile = sys.argv[4]
     
 def isMale(vcfFile):
     return True
@@ -27,23 +43,40 @@ def parseBases(basesString):
             return basesSplits[0]
     return None
 
-def parseVCF(vcfFile):
-    posAlleles = {}
+def parseVCF(vcfFile, tbPositionSNPsFile):
+    tbPositionSNPs = tabix.open(tbPositionSNPsFile)
+    positives = []
+    negatives = []
     if isMale(vcfFile):    
         vcf_reader = vcf.Reader(filename=vcfFile)
         record = next(vcf_reader)
         
         
         while record:
-            position = record.POS
-            basesString = record.samples[0].gt_bases
-            if basesString:
-                parsed = parseBases(basesString)
-                if parsed:
-                    posAlleles[position] = parsed
-                    print(str(position) + " " + parsed)
-            record = next(vcf_reader)
-            
-    return posAlleles
+            if record.CHROM == "chrY":
+                position = str(record.POS)
+                basesString = record.samples[0].gt_bases
+                if basesString:
+                    allele = parseBases(basesString)
+                    if allele:
+                        (snp, call) = getPositionSNP(position, allele, tbPositionSNPs)
+                        if snp:
+                            if call == "+":
+                                positives.append(snp)
+                            else:
+                                negatives.append(snp)
+                            
+                            #print(posSNP)
+                try:
+                    record = next(vcf_reader)
+                except:
+                    record = None
+    
+    return positives, negatives
 
-parseVCF(vcfFile)
+def filterSNPsTopTwoPredictions(positives, negatives, tbCladeSNPFile, tbSNPcladeFile):
+    jsonObj = CommonMethods.getJSON("score", positives, negatives, tbCladeSNPFile, tbSNPcladeFile, None)
+    return jsonObj
+
+(positives, negatives) = parseVCF(vcfFile, tbPositionSNPsFile)
+print(filterSNPsTopTwoPredictions(positives, negatives, tbCladeSNPFile, tbSNPcladeFile))
