@@ -108,7 +108,10 @@ def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, t
     tbSNPClades = tabix.open(tbSNPcladeFile)
     uniqPositives = CommonMethods.getUniqueSNPsetTabix(positives, tbSNPClades)
     uniqNegatives = CommonMethods.getUniqueSNPsetTabix(negatives, tbSNPClades)
-    clade1 = jsonObj["clade"]
+    if "clade" in jsonObj:
+        clade1 = jsonObj["clade"]
+    else:
+        print(jsonObj["error"])
     if "nextPrediction" in jsonObj:    
         clade2 = jsonObj["nextPrediction"]["clade"]
         upstream = getUpstream(clade1, clade2, tbCladeSNPs)
