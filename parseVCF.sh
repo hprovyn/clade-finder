@@ -11,4 +11,4 @@ cladeSNPs="$workingDir${pathSeparator}cladeSNPs"
 SNPclades="$workingDir${pathSeparator}SNPclades"
 positionMarkers="$workingDir${pathSeparator}hg38positionMarkers"
 file=$1
-python3 $parseVCF_py $1 "$positionMarkers.bgz" "$cladeSNPs" "$SNPclades"
+python3 $parseVCF_py $1 "$positionMarkers.bgz" "$cladeSNPs.bgz" "$SNPclades.bgz"
