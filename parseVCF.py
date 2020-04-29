@@ -108,11 +108,19 @@ def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, t
     tbSNPClades = tabix.open(tbSNPcladeFile)
     uniqPositives = CommonMethods.getUniqueSNPsetTabix(positives, tbSNPClades)
     uniqNegatives = CommonMethods.getUniqueSNPsetTabix(negatives, tbSNPClades)
-    #if "nextPrediction" in jsonObj:
-        #clade1 = jsonObj["clade"]
-    allowed = set(getSNPsBelowClade(jsonObj["clade"], tbCladeSNPs))
-    if "nextPrediction" in jsonObj:
-        allowed = allowed.union(getSNPsBelowClade(jsonObj["nextPrediction"]["clade"], tbCladeSNPs))
+    clade1 = jsonObj["clade"]
+    if "nextPrediction" in jsonObj:    
+        clade2 = jsonObj["nextPrediction"]["clade"]
+        upstream = getUpstream(clade1, clade2)
+        print("upstream of " + clade1  + " and " + clade2 + " is " + str(upstream))
+        if upstream:
+            allowed = set(getSNPsBelowClade(upstream, tbCladeSNPs))
+        else:
+            allowed = set(getSNPsBelowClade(clade1, tbCladeSNPs))
+            allowed = allowed.union(getSNPsBelowClade(clade2, tbCladeSNPs))
+    else:
+        allowed = set(getSNPsBelowClade(clade1, tbCladeSNPs))
+        
     filteredUniqPos = list(allowed.intersection(uniqPositives))    
     filteredUniqNeg = list(allowed.intersection(uniqNegatives))
     filteredPos = []
