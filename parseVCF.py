@@ -110,31 +110,33 @@ def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, t
     uniqNegatives = CommonMethods.getUniqueSNPsetTabix(negatives, tbSNPClades)
     if "clade" in jsonObj:
         clade1 = jsonObj["clade"]
-    else:
-        print(jsonObj["error"])
-    if "nextPrediction" in jsonObj:    
-        clade2 = jsonObj["nextPrediction"]["clade"]
-        upstream = getUpstream(clade1, clade2, tbCladeSNPs)
-        print("upstream of " + clade1  + " and " + clade2 + " is " + str(upstream))
-        if upstream:
-            allowed = set(getSNPsBelowClade(upstream, tbCladeSNPs))
+        if "nextPrediction" in jsonObj:    
+            clade2 = jsonObj["nextPrediction"]["clade"]
+            upstream = getUpstream(clade1, clade2, tbCladeSNPs)
+            print("upstream of " + clade1  + " and " + clade2 + " is " + str(upstream))
+            if upstream:
+                allowed = set(getSNPsBelowClade(upstream, tbCladeSNPs))
+            else:
+                allowed = set(getSNPsBelowClade(clade1, tbCladeSNPs))
+                allowed = allowed.union(getSNPsBelowClade(clade2, tbCladeSNPs))
         else:
             allowed = set(getSNPsBelowClade(clade1, tbCladeSNPs))
-            allowed = allowed.union(getSNPsBelowClade(clade2, tbCladeSNPs))
+            
+        filteredUniqPos = list(allowed.intersection(uniqPositives))    
+        filteredUniqNeg = list(allowed.intersection(uniqNegatives))
+        filteredPos = []
+        for snp in filteredUniqPos:
+            snpsplit = snp.split("/")
+            filteredPos.append(snpsplit[0])
+        filteredNeg = []
+        for snp in filteredUniqNeg:
+            snpsplit = snp.split("/")
+            filteredNeg.append(snpsplit[0])
+        return filteredPos, filteredNeg
     else:
-        allowed = set(getSNPsBelowClade(clade1, tbCladeSNPs))
-        
-    filteredUniqPos = list(allowed.intersection(uniqPositives))    
-    filteredUniqNeg = list(allowed.intersection(uniqNegatives))
-    filteredPos = []
-    for snp in filteredUniqPos:
-        snpsplit = snp.split("/")
-        filteredPos.append(snpsplit[0])
-    filteredNeg = []
-    for snp in filteredUniqNeg:
-        snpsplit = snp.split("/")
-        filteredNeg.append(snpsplit[0])
-    return filteredPos, filteredNeg
+        print(jsonObj["error"])
+        return None, None
+    
 
 def makeStringFromPosNeg(positives, negatives):
     output = "+, ".join(positives)
@@ -155,10 +157,11 @@ jsonObj = CommonMethods.getJSONObject("score", positives, negatives, tbCladeSNPF
 found_time = time.time()
 print ('found clade in ' + str(found_time - parsed_time) + ' seconds')
 (filteredPos, filteredNeg) = filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, tbSNPcladeFile)
-filtered_time = time.time()
-print ('filtered to top two predicted in ' + str(filtered_time - found_time) + ' seconds')
 #print(makeStringFromPosNeg(positives, negatives))
-jsonObj = CommonMethods.getJSONObject("score", filteredPos, filteredPos, tbCladeSNPFile, tbSNPcladeFile, None)
-found_filter_time = time.time()
-print ('found clade filtered in ' + str(found_filter_time - filtered_time) + ' seconds')
-print(makeStringFromPosNeg(filteredPos, filteredNeg))
+if filteredPos:
+    filtered_time = time.time()
+    print ('filtered to top two predicted in ' + str(filtered_time - found_time) + ' seconds')
+    jsonObj = CommonMethods.getJSONObject("score", filteredPos, filteredPos, tbCladeSNPFile, tbSNPcladeFile, None)
+    found_filter_time = time.time()
+    print ('found clade filtered in ' + str(found_filter_time - filtered_time) + ' seconds')
+    print(makeStringFromPosNeg(filteredPos, filteredNeg))
