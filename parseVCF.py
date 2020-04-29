@@ -111,7 +111,7 @@ def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, t
     clade1 = jsonObj["clade"]
     if "nextPrediction" in jsonObj:    
         clade2 = jsonObj["nextPrediction"]["clade"]
-        upstream = getUpstream(clade1, clade2)
+        upstream = getUpstream(clade1, clade2, tbCladeSNPs)
         print("upstream of " + clade1  + " and " + clade2 + " is " + str(upstream))
         if upstream:
             allowed = set(getSNPsBelowClade(upstream, tbCladeSNPs))
