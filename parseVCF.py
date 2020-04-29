@@ -94,7 +94,7 @@ def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, t
     uniqNegatives = CommonMethods.getUniqueSNPsetTabix(negatives, tbSNPClades)
     allowed = set(getSNPsBelowClade(jsonObj["clade"], tbCladeSNPs))
     if "nextPrediction" in jsonObj:
-        allowed = allowed.union(getSNPsBelowClade)
+        allowed = allowed.union(getSNPsBelowClade(jsonObj["clade"], tbCladeSNPs))
     filteredUniqPos = list(allowed.intersection(uniqPositives))    
     filteredUniqNeg = list(allowed.intersection(uniqNegatives))
     filteredPos = []
@@ -126,4 +126,6 @@ jsonObj = CommonMethods.getJSONObject("score", positives, negatives, tbCladeSNPF
 found_time = time.time()
 print ('found clade in ' + str(found_time - parsed_time) + ' seconds')
 (positives, negatives) = filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, tbSNPcladeFile)
+filtered_time = time.time()
+print ('filtered to top two predicted in ' + str(filtered_time - parsed_time) + ' seconds')
 print(makeStringFromPosNeg(positives, negatives))
