@@ -86,15 +86,33 @@ def getSNPsBelowClade(clade, tb):
             snps.append(childSNP)
     return snps
 
+def getUpstream(clade1, clade2, tbCladeSNPs):
+    hier = {}
+    for clade in [clade1, clade2]:
+        CommonMethods.recurseToRootAddParents(clade, hier, tbCladeSNPs)
+    c = clade1
+    while c in hier:
+        c = hier[c]
+        if c == clade2:
+            return clade2
+    c = clade2
+    while c in hier:
+        c = hier[c]
+        if c == clade1:
+            return clade1
+    return None
+
 def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, tbSNPcladeFile):
     #tbCladeSNPs = tabix.open(tbCladeSNPFile)
     tbCladeSNPs = tabix.open(tbCladeSNPFile)
     tbSNPClades = tabix.open(tbSNPcladeFile)
     uniqPositives = CommonMethods.getUniqueSNPsetTabix(positives, tbSNPClades)
     uniqNegatives = CommonMethods.getUniqueSNPsetTabix(negatives, tbSNPClades)
+    #if "nextPrediction" in jsonObj:
+        #clade1 = jsonObj["clade"]
     allowed = set(getSNPsBelowClade(jsonObj["clade"], tbCladeSNPs))
     if "nextPrediction" in jsonObj:
-        allowed = allowed.union(getSNPsBelowClade(jsonObj["clade"], tbCladeSNPs))
+        allowed = allowed.union(getSNPsBelowClade(jsonObj["nextPrediction"]["clade"], tbCladeSNPs))
     filteredUniqPos = list(allowed.intersection(uniqPositives))    
     filteredUniqNeg = list(allowed.intersection(uniqNegatives))
     filteredPos = []
