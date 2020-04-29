@@ -18,6 +18,7 @@ def getPositionSNP(position, allele, tb):
                 return snp[3], "+"
             else:
                 return snp[3], "-"
+        return None, None
     except:
         return None, None
         
