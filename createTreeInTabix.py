@@ -8,7 +8,7 @@ Created on Fri Dec 20 13:22:52 2019
 import sys
 import json
 
-if len(sys.argv) > 7:
+if len(sys.argv) > 8:
     treeFile = sys.argv[1]
     hg19positionMarkersTSV = sys.argv[2]
     hg38positionMarkersTSV = sys.argv[3]
@@ -16,6 +16,7 @@ if len(sys.argv) > 7:
     SNPcladeFilePath = sys.argv[5]
     positionMarkersFilePath = sys.argv[6]
     productsFilePath = sys.argv[7]
+    toIgnoreFilePath = sys.argv[8]
 else:
     treeFile = "C:\clade-finder-files\yfull.json"
     cladeSNPFilePath = "C:\clade-finder-files\cladeSNPs"
@@ -39,7 +40,17 @@ def parseTreeJSON(fil):
 def replaceAsNecessary(snp):
     return snp.replace("(","_L_PAREN_").replace(")","_R_PAREN_").replace("+","_PLUS_").replace("-","_MINUS_").replace(" ","").replace(".","_DOT_")
 
-toIgnore = ["PF6234"]
+def getToIgnore(file):
+    ignore = []
+    with open(file, "r") as r:
+        for line in r.readlines():
+            snp = line.replace("\n","")
+            if snp != "":
+                ignore.append(snp)
+    return ignore
+        
+toIgnore = getToIgnore(toIgnoreFilePath) #["PF6234"]
+
 def parseSNPsString(snpsString):
     thesnps = set([])
     for snp in snpsString.split(", "):        

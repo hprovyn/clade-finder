@@ -8,3 +8,4 @@ treeFile=#YFull tree in json format
 hg19markerPositionsTSV=#file containing marker positions necessary for parsing files in hg19
 hg38markerPositionsTSV=#file containing marker positions necessary for parsing files in hg38
 productsFile=#file containing product ids
+toIgnoreFile=#file of SNPs to ignore
