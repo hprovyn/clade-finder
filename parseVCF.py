@@ -67,11 +67,10 @@ def parseVCF(vcfFile, tbPositionSNPsFile):
                             else:
                                 negatives.append(snp)
                             
-                            #print(posSNP)
-                try:
-                    record = next(vcf_reader)
-                except:
-                    record = None
+            try: 
+                record = next(vcf_reader)
+            except:
+                record = None             
     
     return positives, negatives
 def getSNPsBelowClade(clade, tb):
