@@ -140,9 +140,11 @@ def filterSNPsTopTwoPredictions(jsonObj, positives, negatives, tbCladeSNPFile, t
 def makeStringFromPosNeg(positives, negatives):
     output = "+, ".join(positives)
     if len(positives) > 0:
-        output = output + "+, "
-    output = output + "-, ".join(negatives)
+        output = output + "+"
     if len(negatives) > 0:
+        if len(positives) > 0:
+            output = output + ", "
+        output = output + "-, ".join(negatives)
         output = output + "-"
     return output
 
