@@ -9,3 +9,6 @@ hg19markerPositionsTSV=#file containing marker positions necessary for parsing f
 hg38markerPositionsTSV=#file containing marker positions necessary for parsing files in hg38
 productsFile=#file containing product ids
 toIgnoreFile=#file of SNPs to ignore
+hg38File=#hg38 reference file
+chainFile=#chain file to convert hg19 to hg38 for crossmap
+crossMapPy=#CrossMap.py
