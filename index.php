@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!file_exists("status.json")) {
+	file_put_contents("status.json","{}");
+	echo "created<br>";
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -230,7 +234,11 @@ function removeSessionStatus() {
 	file_put_contents("status.json", json_encode($statuses));
 }
 function updateSessionStatus($update) {
-	$statuses = json_decode(file_get_contents("status.json"),true);
+	if (file_exists("status.json")) {
+		$statuses = json_decode(file_get_contents("status.json"),true);
+	} else {
+		$statuses = array();
+	}
 	$statuses[session_id()] = array("uploaded"=>true, "info"=>$update);
 	file_put_contents("status.json", json_encode($statuses));
 }
