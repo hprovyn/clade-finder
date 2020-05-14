@@ -41,11 +41,13 @@ def getProductTabix(snp, tb):
 def getPositionSNP(position, allele, tb):
     try:
         positionResults = tb.querys(position + ":1-1")
+        snps = []
         for snp in positionResults:
             if snp[4] == allele:
-                return snp[3] + "+"
+                snps.append(snp[3] + "+")
             else:
-                return snp[3] + "-"
+                snps.append(snp[3] + "-")
+        return snps
     except:
         return None
 
@@ -67,9 +69,11 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                         allele = splt[3][0]
                         if allele != "-":
                             yTotal = yTotal + 1
-                            posSNP = getPositionSNP(position, allele, tbPositionSNPs)
-                            if posSNP and posSNP != "S47+":
-                                positives.append(posSNP)
+                            posSNPs = getPositionSNP(position, allele, tbPositionSNPs)
+                            if posSNPs:
+                                for posSNP in posSNPs:
+                                    if posSNP != "S47+":
+                                        positives.append(posSNP)
                 else:
                     if splt[1] == "X":
                         if len(splt[3]) > 0:
@@ -83,9 +87,10 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                         allele = splt[3]
                         if allele != "0" and allele != "":
                             yTotal = yTotal + 1
-                            posSNP = getPositionSNP(position, allele, tbPositionSNPs)
-                            if posSNP:
-                                positives.append(posSNP)
+                            posSNPs = getPositionSNP(position, allele, tbPositionSNPs)
+                            if posSNPs:
+                                for posSNP in posSNPs:
+                                    positives.append(posSNP)
                     else:
                         if splt[1] == "25":
                             allele = splt[3]
@@ -101,9 +106,10 @@ def getSNPsFrom23AndMe(twentyThreeAndMeFile, tbPositionSNPsFile):
                                     allele = splt[3][0]
                                     if allele != "-":
                                         yTotal = yTotal + 1
-                                        posSNP = getPositionSNP(position, allele, tbPositionSNPs)
-                                        if posSNP:
-                                            positives.append(posSNP)
+                                        posSNPs = getPositionSNP(position, allele, tbPositionSNPs)
+                                        if posSNPs:
+                                            for posSNP in posSNPs:
+                                                positives.append(posSNP)
                             else:
                                 if splt[1] == "X":
                                     if len(splt[3]) > 0:
