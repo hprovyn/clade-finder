@@ -90,11 +90,16 @@ function getPhyloeqHTMLOutput($phyloeq_obj) {
 				$color = "red";
 				$bold = True;
 			} else {
-				if ($phyloeq_obj->{$key}->{"product"}) {
-					$color = "blue";
-					$bold = "True";
+				if ($call == "c") {
+					$color = "orange";
+					$bold = True;
 				} else {
-					$color = "blue";
+					if ($phyloeq_obj->{$key}->{"product"}) {
+						$color = "blue";
+						$bold = "True";
+					} else {
+						$color = "blue";
+					}
 				}
 			}
 		}
