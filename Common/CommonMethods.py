@@ -563,7 +563,7 @@ def getPanelArray(clade, snpPanelConfigFile, tbCladeSNPs, hierarchy, uniqNegativ
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile))
 
-def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades, hierarchy, snpPanelConfigFile):
+def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades, hierarchy, snpPanelConfigFile, warning = None):
     theobj = {}
     clade = clade.replace("*","")
     theobj["clade"] = clade
@@ -579,6 +579,8 @@ def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, 
         panels = getPanelArray(clade, snpPanelConfigFile, tbCladeSNPs, hierarchy, negatives)
         if len(panels) > 0:
             theobj["panels"] = panels
+    if warning:
+        theobj["warning"] = warning
     if "phyloeq" in params:
         return decodeTabixSNPs(theobj)
     return theobj
@@ -592,9 +594,10 @@ def getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, 
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     conflicting = uniqPositives.intersection(uniqNegatives)
+    warning = None
     if len(conflicting) > 0:
-        return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
-    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, None, None)
+        warning = "conflicting calls for same SNP with names " + ", ".join(list(conflicting))
+    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, None, None, warning)
     
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
@@ -604,21 +607,22 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
     if len(uniqPositives) == 0:
         return {"error": "unable to determine clade due to no positive SNPs"}
     conflicting = uniqPositives.intersection(uniqNegatives)
+    warning = None
     if len(conflicting) > 0:
-        return {"error": "conflicting calls for same SNP with names " + ", ".join(list(conflicting))}
+        warning = "conflicting calls for same SNP with names " + ", ".join(list(conflicting))
     (ranked, hierarchy) = getRankedSolutionsScratch(uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades)
     if "all" in params:
         result = []
         for r in ranked:  
             clade = r[1]
             score = r[4]
-            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile))
+            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, warning))
         return result
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
             score = ranked[0][4]
-            decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile)
+            decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, warning)
             if len(ranked) > 1 and "score" in params:
                 clade = ranked[1][1]
                 score = ranked[1][4]
