@@ -563,14 +563,14 @@ def getPanelArray(clade, snpPanelConfigFile, tbCladeSNPs, hierarchy, uniqNegativ
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile))
 
-def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades, hierarchy, snpPanelConfigFile, warning = None):
+def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades, hierarchy, snpPanelConfigFile, warning = None, conflicts):
     theobj = {}
     clade = clade.replace("*","")
     theobj["clade"] = clade
     if "downstream" in params:
-        theobj["downstream"] = getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs)
+        theobj["downstream"] = getDownstreamSNPsJSONObject(clade, positives, negatives, conflicts, tbCladeSNPs)
     if "phyloeq" in params:
-        theobj["phyloeq"] = getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs)
+        theobj["phyloeq"] = getCladeSNPStatusJSONObject(clade, positives, negatives, conflicts, tbCladeSNPs)
     if "score" in params:
         theobj["score"] = score
     if "products" in params:
@@ -594,19 +594,23 @@ def getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, 
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
     conflicting = uniqPositives.intersection(uniqNegatives)
+    uniqPositives = uniqPositives.difference(conflicting)
+    uniqNegatives = uniqNegatives.difference(conflicting)
     warning = None
     if len(conflicting) > 0:
         warning = "conflicting calls for same SNP with names " + ", ".join(list(conflicting))
-    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, None, None, warning)
+    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, None, None, warning, conflicting)
     
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
     tbCladeSNPs = tabix.open(tbCladeSNPsFile)
     uniqPositives = getUniqueSNPsetTabix(positives, tbSNPclades)
     uniqNegatives = getUniqueSNPsetTabix(negatives, tbSNPclades)
+    conflicting = uniqPositives.intersection(uniqNegatives)
+    uniqPositives = uniqPositives.difference(conflicting)
+    uniqNegatives = uniqNegatives.difference(conflicting)
     if len(uniqPositives) == 0:
         return {"error": "unable to determine clade due to no positive SNPs"}
-    conflicting = uniqPositives.intersection(uniqNegatives)
     warning = None
     if len(conflicting) > 0:
         warning = "conflicting calls for same SNP with names " + ", ".join(list(conflicting))
@@ -616,13 +620,13 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
         for r in ranked:  
             clade = r[1]
             score = r[4]
-            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, warning))
+            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, warning, conflicting))
         return result
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
             score = ranked[0][4]
-            decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, warning)
+            decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, warning, conflicting)
             if len(ranked) > 1 and "score" in params:
                 clade = ranked[1][1]
                 score = ranked[1][4]
@@ -634,7 +638,7 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
             else:
                 return {"error": "unable to find any of " + ", ".join(positives) + " on the YFull tree"}
 
-def getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs):
+def getCladeSNPStatusJSONObject(clade, positives, negatives, conflicts, tbCladeSNPs):
     status = {}
     snps = getCladeSNPs(clade, tbCladeSNPs)
     poses = set(positives).intersection(snps)
@@ -646,17 +650,19 @@ def getCladeSNPStatusJSONObject(clade, positives, negatives, tbCladeSNPs):
             status[snp]["call"] = "+"
         elif snp in negs:
             status[snp]["call"] = "-"
+        elif snp in conflicts:
+            status[snp]["call"] = "c"
         else:
             status[snp]["call"] = "?"
     return status
 
-def getDownstreamSNPsJSONObject(clade, positives, negatives, tbCladeSNPs):
+def getDownstreamSNPsJSONObject(clade, positives, negatives, conflicts, tbCladeSNPs):
     children = getChildrenTabix(clade, tbCladeSNPs)
     downstreamNodes = []
     for child in children:
         downstreamNode = {"clade": child}
         
-        downstreamNode["phyloeq"] = getCladeSNPStatusJSONObject(child, positives, negatives, tbCladeSNPs)
+        downstreamNode["phyloeq"] = getCladeSNPStatusJSONObject(child, positives, negatives, conflicts, tbCladeSNPs)
         grandChildren = getChildrenTabix(child, tbCladeSNPs)
         if len(grandChildren) > 0:
             downstreamNode["children"] = len(grandChildren)
