@@ -563,7 +563,7 @@ def getPanelArray(clade, snpPanelConfigFile, tbCladeSNPs, hierarchy, uniqNegativ
 def getJSON(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     return json.dumps(getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile))
 
-def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades, hierarchy, snpPanelConfigFile, warning = None, conflicts):
+def decorateJSONObject(params, clade, score, positives, negatives, tbCladeSNPs, tbSNPClades, hierarchy, snpPanelConfigFile, conflicts, warning):
     theobj = {}
     clade = clade.replace("*","")
     theobj["clade"] = clade
@@ -599,7 +599,7 @@ def getJSONObjectForClade(params, clade, positives, negatives, tbCladeSNPsFile, 
     warning = None
     if len(conflicting) > 0:
         warning = "conflicting calls for same SNP with names " + ", ".join(list(conflicting))
-    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, None, None, warning, conflicting)
+    return decorateJSONObject(params, clade, 0, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, None, None, conflicting, warning)
     
 def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile, snpPanelConfigFile):
     tbSNPclades = tabix.open(tbSNPcladesFile)
@@ -620,13 +620,13 @@ def getJSONObject(params, positives, negatives, tbCladeSNPsFile, tbSNPcladesFile
         for r in ranked:  
             clade = r[1]
             score = r[4]
-            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, warning, conflicting))
+            result.append(decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, conflicting, warning))
         return result
     else:
         if len(ranked) > 0:
             clade = ranked[0][1]
             score = ranked[0][4]
-            decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, warning, conflicting)
+            decorated = decorateJSONObject(params, clade, score, uniqPositives, uniqNegatives, tbCladeSNPs, tbSNPclades, hierarchy, snpPanelConfigFile, conflicting, warning)
             if len(ranked) > 1 and "score" in params:
                 clade = ranked[1][1]
                 score = ranked[1][4]
