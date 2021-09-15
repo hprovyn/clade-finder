@@ -138,7 +138,7 @@ function processVCF($extracted_dir, $vcf) {
 		$mode = "error";
 	}	
 	if ($mode == "hg19") {
-		updateSessionStatus("Mapping hg19 to hg39");
+		updateSessionStatus("Mapping hg19 to hg38");
 		$strippedY = $extracted_dir . "/stripped";
 		$hg38out = $extracted_dir . "/hg38.vcf";
 		exec('head -300 ' . $safedest . ' | grep "#" > ' . $strippedY);
