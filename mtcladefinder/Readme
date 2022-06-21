@@ -1,0 +1,3 @@
+mt-clade-finder
+
+Relies on a minimap2 lookup of NCBI samples that are on the YFull MTree to present relevant information about a sample FASTA's closest matches.
