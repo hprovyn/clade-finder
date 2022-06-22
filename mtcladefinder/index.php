@@ -126,7 +126,7 @@ Developed by Hunter Provyn with input and support from Thomas Krahn (2022).<br>
 A minimap2 driven algorithm that takes a FASTA and returns closest matches from NCBI dataset, mapped to the <a href="https://www.yfull.com">YFull</a> MTree.<br>
 Compare to <a href="https://dna.jameslick.com/mthap">James Lick mtHap</a>.<br>
 
-This YSEQ mt Clade Finder is open source software and can be cloned from GitHub: <a href="https://github.com/hprovyn/mt-clade-finder">https://github.com/hprovyn/mt-clade-finder</a><br><br>
+This YSEQ mt Clade Finder is open source software and can be cloned from GitHub: <a href="https://github.com/hprovyn/clade-finder">https://github.com/hprovyn/clade-finder</a><br><br>
 
 Please always give a link to <a href="http://predict.yseq.net/mt-clade-finder">this</a> original website as a reference.<br><br>
 
@@ -266,7 +266,7 @@ function getBestMatchHG($fasta)
 
 	$fields = array('fasta' => urlencode($fasta));
 
-	$url = "http://minimap2.yseq.net:7979/minimap2/json.php";
+	$url = "https://minimap2.yseq.net:7878/minimap2/json.php";
 	foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
 	rtrim($fields_string, '&');
 
@@ -274,6 +274,8 @@ function getBestMatchHG($fasta)
 
 	curl_setopt($ch,CURLOPT_URL, $url);
 	curl_setopt($ch,CURLOPT_POST, count($fields));
+	curl_setopt($ch,CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch,CURLOPT_SSL_VERIFYHOST, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
 	$result = curl_exec($ch);
@@ -296,6 +298,8 @@ function getComparison($fasta, $ncbiid)
 
 	curl_setopt($ch,CURLOPT_URL, $url);
 	curl_setopt($ch,CURLOPT_POST, count($fields));
+	curl_setopt($ch,CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch,CURLOPT_SSL_VERIFYHOST, false);
 	curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
 	$result = curl_exec($ch);
