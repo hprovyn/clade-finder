@@ -8,11 +8,11 @@ if (!file_exists("status.json")) {
 <!DOCTYPE html>
 <html>
 <head>
-        <link rel="stylesheet" type="text/css" href="https://www.yseq.net/ext/jquery/ui/redmond/jquery-ui-1.8.22.css" />
+        <link rel="stylesheet" type="text/css" href="https://www.yseq.net/ext/jquery/ui/redmond/jquery-ui-1.12.1.css" />
         <link rel="stylesheet" type="text/css" href="https://www.yseq.net/ext/jquery/fancybox/jquery.fancybox-1.3.4.css" />
         <link rel="stylesheet" type="text/css" href="https://www.yseq.net/ext/960gs/960_24_col.css" />
-	<link rel="stylesheet" type="text/css" href="https://www.yseq.net/stylesheet.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://www.yseq.net/stylesheet.css" />
+        <script src="https://www.yseq.net/ext/jquery/jquery-3.5.1.min.js"></script>
 <style>
 #ytree {
 height: 380px;
@@ -46,19 +46,20 @@ border: 1;
 
 <div style="display:inline-block;text-align: left;">
         <h1>YSEQ Clade Finder (version 1.0)</h1>
-    <div style="display:flex"><div style="display:inline-block;padding-top: 0px;padding-right: 20px;padding-bottom: 0px;padding-left: 20px;"><img src="cladefinder.png" alt="Clade Finder" title="Clade Finder" width="300" style="vertical-align:middle"/>
+    <div style="display:flex"><div style="display:inline-block;padding-top: 0px;padding-right: 20px;padding-bottom: 0px;padding-left: 20px;"><img src="CladeFinder-Logo.png" alt="Clade Finder" title="Clade Finder" width="300" style="vertical-align:middle"/>
 </div><div style="display:inline-block; width:50%;padding-top: 0px;padding-right: 20px;padding-bottom: 0px;padding-left: 20px;">
 Developed by Hunter Provyn with input and support from Thomas Krahn (2019).<br>
 A light-weight algorithm that takes positive and negative SNPs and returns likely subclade from the <a href="https://www.yfull.com">YFull</a> YTree.<br>
 Compare to <a href="https://ytree.morleydna.com/predict">Morley DNA Predictor</a>.<br>
-<ul><li>Supports submission of SNPs in the following formats:<ul><li>Text</li><li>File - <b>23andMe | AncestryDNA | MyHeritage | VCF</b></li></ul></li>
-<li>Click <img src="https://yfull.com/favicon.ico" width="16" height="16"> for link to your position on the <a href="https://yfull.com/tree">YFull YTree</a></li>
+<ul><li>Supports submission of SNPs in the following formats:<ul><li>Text</li><li>File - <b>23andMe | AncestryDNA | MyHeritage | <br>FTDNA Family Finder | VCF</b></li></ul></li>
+<li>Click <img src="yfull.png" width="16" height="16"> for link to your position on the <a href="https://yfull.com/tree">YFull YTree</a></li>
 <li>Click <img src="phylogeographer.png" width="16" height="16"> for link to theoretical migration and relevant forums/groups in <a href="https://phylogeographer.com">PhyloGeographer</a>, a data-driven project that calculates approximate male line migrations from YFull and other ancient samples</li>
 <li><font style="color:green">Positive calls in green</font>, <font style="color:red">negative in red</font></li>
 <li>Click button to expand subclade (number of children indicated)</li>
 <li>SNPs marked with ($) may be tested at YSEQ, link goes to product</li>
 <li>SNPs marked with (?) are not yet available at YSEQ, link goes to Wish a SNP</li></ul>
 
+Terms of Service / Privacy Statement: This site does not use cookies or store your information in any way. Files uploaded are immediately deleted by script subsequent to analysis. For more details, refer to <a href="https://www.yseq.net/privacy.php">YSEQ Privacy Notice</a><br><br>
 This YSEQ clade finder is open source software and can be cloned from GitHub: <a href="https://github.com/hprovyn/clade-finder">https://github.com/hprovyn/clade-finder</a><br><br>
 
 Please always give a link to <a href="http://predict.yseq.net/clade-finder">this</a> original website as a reference.<br><br>
@@ -125,12 +126,12 @@ function processVCF($extracted_dir, $vcf) {
 	$safedest = $extracted_dir . "/" . "safe.txt";
 	exec('mv ' . $safename . " " . $safedest);
 	$reftext = exec('grep -i "reference" ' . $safedest);
-	if (stripos($reftext, "hg38") !== false or stripos($reftext, "grch38") !== false) {
+	if (stripos($reftext, "hg38") !== false or stripos($reftext, "grch38") !== false or stripos($reftext, "hs38") !== false) {
 		replaceYtoChrYifNecessary($safedest);
 		$mode = "hg38";
 		$hg38out = $safedest;
 	}
-	if (stripos($reftext, "hg19") !== false or stripos($reftext, "grch37") !== false) {
+	if (stripos($reftext, "hg19") !== false or stripos($reftext, "grch37") !== false or stripos($reftext, "human_g1k_v37") !== false or stripos($reftext, "hs37d5") !== false) {
 		replaceYtoChrYifNecessary($safedest);
 		$mode = "hg19";
 	}
@@ -174,11 +175,11 @@ function replaceYtoChrY($file) {
 	exec("sed -i 's/^Y/chrY/' " . $file);
 }
 
-function processASCII($extracted_dir, $ascii) {
+function processASCII($extracted_dir, $ascii, $alignment) {
 	$safename =  $extracted_dir . "/" . getSafeFileName($ascii);
 	$safedest = $extracted_dir . "/" . "safe.txt";
 	exec('mv ' . $safename . " " . $safedest);
-	$snps = exec('/var/lib/clade-finder/findClade23andMe.sh ' . $safedest);
+	$snps = exec('/var/lib/clade-finder/findClade23andMe.sh ' . $safedest . ' ' . $alignment);
 	unlink($safedest);
         return $snps;
 }
@@ -214,8 +215,8 @@ var sessionId = "<?php echo session_id();?>";
 					}
 				},
 				error: function() {
-					alert('ajax polling error');
-					console.log('Ajax polling Error!');
+					//alert('ajax polling error');
+					//console.log('Ajax polling Error!');
 				}
 			});
 		},
@@ -249,7 +250,10 @@ if(isset($_FILES['23'])) {
 		       $file_size =$_FILES['23']['size'];
 		             $file_tmp =$_FILES['23']['tmp_name'];
 		             $file_type=$_FILES['23']['type'];
-			           $file_ext=strtolower(end(explode('.',$_FILES['23']['name'])));
+			     
+			     $exploded = explode('.',$_FILES['23']['name']);
+			     $file_ext=strtolower(end($exploded));
+			     #$file_ext=strtolower(end(explode('.',$_FILES['23']['name'])));
 			           
 			           $extensions= array("zip", "vcf", "gz", "csv", "txt");
 				         
@@ -271,7 +275,9 @@ if(isset($_FILES['23'])) {
 						 $unzipped_dir = $unzipped_base_dir . "/" . $rando;
 		 				 $zipped_file = $upload_dir."/file.zip";
 						 unzipIfNecessary($zipped_file, $unzipped_dir);
-						 unlink($zipped_file);
+						 if(file_exists($zipped_file)) {
+							 unlink($zipped_file);
+						 }
 						 rmdir($upload_dir);
 						 $hasVCF = hasFileOfType($unzipped_dir, "(VCF)");
 						 if ($hasVCF !== false) {
@@ -279,9 +285,17 @@ if(isset($_FILES['23'])) {
 						 } else {							 
 							 $hasASCII = hasFileOfType($unzipped_dir, "ASCII text");
 							 if ($hasASCII !== false) {
-								 $snps = processASCII($unzipped_dir, $hasASCII);
+								 //Most consumer autosomal testing companies use hg19
+								 $snps = processASCII($unzipped_dir, $hasASCII, "hg19positionMarkers");
 							 } else {
-								 echo 'Error: Neither VCF nor ASCII file found in uploaded file / root directory of uploaded archive';
+								 $hasASCII = hasFileOfType($unzipped_dir, "RSID sidtune playSID");
+
+								 if ($hasASCII !== false) {
+									 //FTDNA Family Finder uses hg38
+									 $snps = processASCII($unzipped_dir, $hasASCII, "hg38positionMarkers");
+								 } else {
+									 echo 'Error: Neither VCF nor ASCII file found in uploaded file / root directory of uploaded archive';
+								 }
 							 }
 						 }
 						 exec("rm -r " . $unzipped_dir);

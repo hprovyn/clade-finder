@@ -1,15 +1,14 @@
 <?php
-$json_obj = array();
-$snps = "";
+
 function curlCladeFinder($snps)
 {
-        $fields_string = "";
+	$fields_string = "";
 	$fields = array(
 	            'input' => urlencode($snps),
 		                    'json' => urlencode('phyloeq,downstream,products,score,panels')
 				            );
 
-	$url = "https://cladefinder.yseq.net/json.php";
+	$url = "https://cladefinder.yseq.net/snp_panel_json.php";
 	foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
 	rtrim($fields_string, '&');
 
@@ -26,7 +25,7 @@ function curlCladeFinder($snps)
 }
 function addChildObj(&$json_obj, $childClade, $childObj)
 {
-	if (array_key_exists('downstream', $json_obj)) {
+	if (array_key_exists("downstream", $json_obj)) {
 		$count = 0;
 		foreach($json_obj->{'downstream'} as $obj) {
 			if ($obj->{'clade'} == $childClade) {
@@ -39,79 +38,55 @@ function addChildObj(&$json_obj, $childClade, $childObj)
 	}
 }
 
-if(isset($_POST['snps'])) {
-	$snps = $_POST['snps'];
-	if (!isset($_POST['add']) and !isset($_POST['new']) and !isset($_POST['expandAll']) and !isset($_POST['expandAll2']) and !isset($_POST['expandAll3'])) {
-		$json = curlCladeFinder($snps);
-		$json_obj = json_decode($json);
-		if (strpos($snps, "--") !==false) {
-			$json_obj = $json_obj[0];
-		}
-	}
+
+$levels = 0;
+if(isset($_POST['reset'])) {
+	$levels = $_POST['levels'];
+	$json_obj = json_decode(str_replace("'", "\"", $_POST['json']));
+	$thebranch = $json_obj->{'clade'};
+	$json = curlCladeFinder($thebranch . "--2");
+	$json_obj = json_decode($json)[0];
 }
+
 
 if(isset($_POST['json']) and !isset($_POST['reset'])) {
 	$json_obj = json_decode(str_replace("'", "\"", $_POST['json']));
 }
-if(isset($_POST['json']) == False and isset($_GET['snps'])) {
+if(isset($_POST['json']) == False and isset($_GET['branch'])) {
 
-	$snps = $_GET['snps'];
-	$json = curlCladeFinder($snps);
-	$json_obj = json_decode($json);
-	if (strpos($snps, "--") !==false) {
-		$json_obj = $json_obj[0];	
-	}
+	$branch = $_GET['branch'];
+	$levels = $_GET['levels'];
+	$json = curlCladeFinder($branch . "--" . $levels);
+	$json_obj = json_decode($json)[0];
+	#echo $json;
 }
 if(isset($_POST['add'])) {
 	$addedClade = $_POST['add'];
-	if (isset($_POST['snps'])) {
-		$snps = $_POST['snps'];
-	}
-	if (isset($_GET['snps'])) {
-		$snps = $_GET['snps'];
-	}
-	$snpsForCall = $snps;
-	if (strpos($snps, "--")!==false) {
-		$snps_split = explode("--",$snps);
-		$snpsForCall = $snps_split[1];
-	}
-	$addedObj = json_decode(curlCladeFinder($addedClade . "--" . $snpsForCall))[0];
+	$addedObj = json_decode(curlCladeFinder($addedClade . "--3"))[0];
 	addChildObj($json_obj, $addedClade, $addedObj);
 } else {
 	if (isset($_POST['new'])) {
 		$newClade = $_POST['new'];
-		if (isset($_POST['snps'])) {
-			$snps = $_POST['snps'];
-		}
-		if (isset($_GET['snps'])) {
-			$snps = $_GET['snps'];
-		}
-		$json_obj = json_decode(curlCladeFinder($newClade . "--" . $snps))[0];
+		$json_obj = json_decode(curlCladeFinder($newClade . "--3"));
 	}
 }
 
 if(isset($_POST['expandAll']) or isset($_POST['expandAll2']) or isset($_POST['expandAll3'])) {
-        $levels = 2;
+        $deflevels = 2;
 	if (isset($_POST['expandAll'])) {
-		$levels = 2;
+		$deflevels = 2;
 	}
 
 	if (isset($_POST['expandAll2'])) {
-		$levels = 3;
+		$deflevels = 3;
 	}
 
 	if (isset($_POST['expandAll3'])) {
-		$levels = 4;
+		$deflevels = 4;
 	}
 
 	$unexpandedNodes = getLeafNodesWithChildren($json_obj);
-
-	$snpsForCall = $snps;
-	if (strpos($snps, "--")!==false) {
-		$snps_split = explode("--",$snps);
-		$snpsForCall = $snps_split[1];
-	}
-	$expandedJSON = curlCladeFinder(join(",",$unexpandedNodes) . "--" . $levels . "--" . $snpsForCall);
+	$expandedJSON = curlCladeFinder(join(",",$unexpandedNodes) . "--" . $deflevels);
 	$addedObjects = json_decode($expandedJSON);
 
 	foreach($addedObjects as $addedObject) {
@@ -137,41 +112,12 @@ function getPhyloeqHTMLOutput($phyloeq_obj) {
 	$phyloeq_str = "";
 	foreach($phyloeq_obj as $key=>$value) {
 		$color = "blue";
-		$bold = False;
-		$call = $phyloeq_obj->{$key}->{"call"};
-		if ($call == "+") {
-			$color = "green";
-			$bold = True;
-		} else {
-			if ($call == "-") {
-				$color = "red";
-				$bold = True;
-			} else {
-				if (array_key_exists("product", $phyloeq_obj->{$key})) {
-					$color = "blue";
-					$bold = "True";
-				} else {
-					$color = "blue";
-				}
-			}
-		}
+		$bold = True;
 
-		$phyloeq_str = $phyloeq_str . ' <font color="' . $color . '">';
-		if ($bold) {
-			$phyloeq_str = $phyloeq_str . "<b>";
-		}
-		if ($call == "?") {
+		$phyloeq_str = $phyloeq_str . ' <b><font color="' . $color . '">';
 		
-			if (array_key_exists("product", $phyloeq_obj->{$key})) {
-				$phyloeq_str = $phyloeq_str . $key . '<a href="https://www.yseq.net/product_info.php?products_id=' . $phyloeq_obj->{$key}->{"product"} . '" target="_">($)</a></font>';
-			} else {
-				$phyloeq_str = $phyloeq_str . $key . '<a href="https://www.yseq.net/product_info.php?products_id=108" target="_">(?)</a></font>';
-			}
-		} else {
-			$phyloeq_str = $phyloeq_str . $key . $call . "</font>";
-		}
-		if ($bold) {
-			$phyloeq_str = $phyloeq_str . "</b>";
+		if ($phyloeq_obj->{$key}->{"product"}) {
+			$phyloeq_str = $phyloeq_str . '<a href="https://www.yseq.net/product_info.php?products_id=' . $phyloeq_obj->{$key}->{"product"} . '" target="_">'.$key.'</a></font></b>';
 		}
 	}
 	return $phyloeq_str;
@@ -220,6 +166,18 @@ function getExpandButton($json_obj) {
 	return "";
 }
 
+function getIconsTableHTML($clade) {
+	$icons = array('<a href="https://www.yfull.com/tree/' . $clade . '" target="_"><img border="0" alt="Link to ' . $clade . ' on YFull" title="' . $clade . ' on YFull" src="yfull.png" width="16" height="16"></a>', 
+		'<a href="https://hras.yseq.net/hras.php?dna_type=y&map_type=alpha&hg=' . $clade . '" target="_"><img border="0" alt="View maps, migrations and statistics on HRAS" title="' . $clade . ' maps, migrations and statistics on HRAS" src="heat.png" width="16" height="16"></a>',
+		'<a href="https://www.phylogeographer.com/snp-lookup?' . $clade . '" target="_"><img border="0" alt="View theoretical migration on PhyloGeographer" title="' . $clade . ' on PhyloGeographer" src="phylogeographer.png" width="16" height="16"></a>',
+		'<a href="https://phylogeographer.com/what-do-all-these-codes-mean/" target="_"><img src="questionmark.png" height="16" width="16"/></a>', 
+		'<button name="expandAll" type="submit">+1</button>', 
+		'<button name="expandAll2" type="submit">+2</submit>', 
+		'<button name="expandAll3" type="submit">+3</submit>',
+		'<button name="reset" type="submit">&#8634;</submit>');
+	return '<table border = "1px solid black"><tr><td>' . implode('</td><td>', $icons) . '</td></tr></table>';
+}
+
 function recursivelyBuildTree($json_obj, $level, $branchesBelow) {
 	echo '<tr><td nowrap align="top">' . getIndent($branchesBelow) . getSpanOrName($json_obj, $level) . "&nbsp;" . getExpandButton($json_obj) . '</td><td>' . getPhyloeqHTMLOutput($json_obj->{"phyloeq"}) . "</td></tr>";
 	if (array_key_exists("downstream", $json_obj)) {
@@ -237,55 +195,15 @@ function recursivelyBuildTree($json_obj, $level, $branchesBelow) {
 
 }
 
-function getIconsTableHTML($clade) {
-	$icons = array('<a href="https://www.yfull.com/tree/' . $clade . '" target="_"><img border="0" alt="Link to ' . $clade . ' on YFull" title="' . $clade . ' on YFull" src="yfull.png" width="16" height="16"></a>', 
-		'<a href="https://hras.yseq.net/hras.php?dna_type=y&map_type=alpha&hg=' . $clade . '" target="_"><img border="0" alt="View maps, migrations and statistics on HRAS" title="' . $clade . ' maps, migrations and statistics on HRAS" src="heat.png" width="16" height="16"></a>',
-		'<a href="https://www.phylogeographer.com/snp-lookup?' . $clade . '" target="_"><img border="0" alt="View theoretical migration on PhyloGeographer" title="' . $clade . ' on PhyloGeographer" src="phylogeographer.png" width="16" height="16"></a>',
-		'<a href="https://phylogeographer.com/what-do-all-these-codes-mean/" target="_"><img src="questionmark.png" height="16" width="16"/></a>', 
-		'<button name="expandAll" type="submit">+1</button>', 
-		'<button name="expandAll2" type="submit">+2</submit>', 
-		'<button name="expandAll3" type="submit">+3</submit>',
-		'<button name="reset" type="submit">&#8634;</submit>');
-	return '<table border = "1px solid black"><tr><td>' . implode('</td><td>', $icons) . '</td></tr></table>';
-}
-
-function negativeForAllDownstream($json_obj) {
-	$negativeForAll = True;
-	if (array_key_exists("downstream", $json_obj)) {
-		foreach($json_obj->{"downstream"} as $child) {
-			$falseForOne = False;
-			foreach($child->{"phyloeq"} as $key=>$value) {
-				if ($child->{"phyloeq"}->{$key}->{"call"} == "-") {
-					$falseForOne = True;
-				}
-			}
-			$negativeForAll = $negativeForAll && $falseForOne;
-		}
-	} else {
-		return False;
-	}
-	return $negativeForAll;
-}
-
-function getPanelsHTML($json_obj) {
-	$html = "<br>Available Panels<br><ul>";
-	foreach($json_obj->{"panels"} as $child) {
-		$html = $html . "<li>" . $child->{"link"} . "&nbsp;<i>" . $child->{"text"} . "</i></li>";
-	}
-	$html = $html . "</ul><br>";
-	return $html;
-}
 ?>
 <html><head></head><body>
 <div style="font-family: monospace;">
 <form name="interactive_tree" method="post">
-<input type="hidden" name="snps" value="<?php 
-echo $snps;
-?>">
+<input type="hidden" name="levels" value="<?php echo $levels; ?>">
 
 <input type="hidden" name="json" value="<?php echo str_replace("\"", "'", json_encode($json_obj)); ?>"> 
 <?php
-if (!is_null($json_obj)) {
+
 if (array_key_exists("clade", $json_obj)) {
 	$clade = $json_obj->{"clade"};
 
@@ -293,31 +211,12 @@ if (array_key_exists("clade", $json_obj)) {
 	echo '<table style="font-size:10;">';
 	recursivelyBuildTree($json_obj, 0, "");
 	echo '</table>';
-	if (negativeForAllDownstream($json_obj) == True) {
-		echo '<br>Negative for all known downstream SNPs<br>';
-	}
-	$best_score = $json_obj->{"score"};
-	if ($json_obj->{"score"} < 0) {
-		echo '<br>Warning: Negative score indicates unreliable result<br>';
-	}
-	if (array_key_exists("panels", $json_obj)) {
-		echo getPanelsHTML($json_obj);
-	}
-	if (array_key_exists("nextPrediction", $json_obj)) {
-		$clade = $json_obj->{"nextPrediction"}->{"clade"};
-		$score = $json_obj->{"nextPrediction"}->{"score"};
-		echo '<br>Next best prediction (scored ' . $score . ' compared to ' . $best_score . ')&nbsp;<button name="new" class="text" type="submit" style="padding:0px;font-size:10px;height:20px;width:100px" value="' . $clade .'">' . $clade . '</button><br>';
-	}
 } else {
 	if (array_key_exists("error", $json_obj)) {
-
 		echo $json_obj->{"error"};
 	} else {
 		echo "error: malformed backend response";
 	}
-} 
-} else {
-	echo 'unexpected error, $json_obj is null';
 }
 ?>
 </div>
